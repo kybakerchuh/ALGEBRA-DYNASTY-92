@@ -1,0 +1,8 @@
+{
+  "name": "Algebra Dynasty \u002792",
+  "description": "16-Bit Pro Football \u0026 Franchise Manager",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

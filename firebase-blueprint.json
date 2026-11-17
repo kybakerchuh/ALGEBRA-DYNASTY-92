@@ -1,0 +1,251 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Private user account root document anchoring per-device dynasty saves.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Authentication UID of the account owner.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Verified Google account email (strictly isolated to owner).",
+          "minLength": 3,
+          "maxLength": 254
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Player display name shown in local title bar.",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when user root record was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of latest profile sync."
+        }
+      },
+      "required": ["uid", "email", "displayName", "createdAt", "updatedAt"]
+    },
+    "DeviceDynastySave": {
+      "title": "DeviceDynastySave",
+      "description": "Online dynasty save scoped to a player's specific device using native Firestore maps and lists.",
+      "type": "object",
+      "properties": {
+        "ownerUid": {
+          "type": "string",
+          "description": "Immutable UID of the authenticated player owning this save.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "deviceId": {
+          "type": "string",
+          "description": "Immutable device identifier generated and persisted on the player's browser/device.",
+          "minLength": 4,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "deviceLabel": {
+          "type": "string",
+          "description": "Human-readable label describing the device/browser.",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "teamId": {
+          "type": "string",
+          "description": "Selected 2-3 letter franchise abbreviation.",
+          "minLength": 2,
+          "maxLength": 5,
+          "pattern": "^[A-Z0-9]+$"
+        },
+        "season": {
+          "type": "integer",
+          "description": "Current dynasty season number (>= 1)."
+        },
+        "week": {
+          "type": "integer",
+          "description": "Current dynasty week number (1-30)."
+        },
+        "phase": {
+          "type": "string",
+          "description": "Current dynasty phase.",
+          "enum": ["REGULAR", "PLAYOFFS", "OFFSEASON"],
+          "maxLength": 20
+        },
+        "rings": {
+          "type": "integer",
+          "description": "Championship rings won in this dynasty."
+        },
+        "careerData": {
+          "type": "object",
+          "description": "Structured native Firestore map containing roster, leagueRosters, standings, schedule, weekGames, playoffs, freeAgents, draftClass, and history."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when this device save was first created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when this device save was last updated."
+        }
+      },
+      "required": [
+        "ownerUid",
+        "deviceId",
+        "deviceLabel",
+        "teamId",
+        "season",
+        "week",
+        "phase",
+        "rings",
+        "careerData",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "AdminRecord": {
+      "title": "AdminRecord",
+      "description": "Server-managed teacher admin marker allowing additional co-teachers to publish Algebra review topics.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase UID of the authorized teacher admin.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "role": {
+          "type": "string",
+          "description": "Role label for the admin record.",
+          "enum": ["teacher"],
+          "maxLength": 20
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when admin access was granted."
+        }
+      },
+      "required": ["uid", "role", "createdAt"]
+    },
+    "ReviewTopic": {
+      "title": "ReviewTopic",
+      "description": "Curated, deduplicated Algebra review topic with student-friendly title, unit grouping, standards metadata, and multiple-choice questions synced by the teacher.",
+      "type": "object",
+      "properties": {
+        "topicId": {
+          "type": "string",
+          "description": "Stable topic document identifier.",
+          "minLength": 2,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerUid": {
+          "type": "string",
+          "description": "Immutable UID of the verified teacher who published this topic.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "unitOrder": {
+          "type": "integer",
+          "description": "Curriculum sequence order for the unit (1-99)."
+        },
+        "unitName": {
+          "type": "string",
+          "description": "Student-friendly unit or category name.",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "topicTitle": {
+          "type": "string",
+          "description": "Student-friendly topic title translated from curriculum standards.",
+          "minLength": 2,
+          "maxLength": 160
+        },
+        "studentSummary": {
+          "type": "string",
+          "description": "Short plain-English summary shown in the student topic picker.",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "standards": {
+          "type": "array",
+          "description": "Bounded list of curriculum standard codes or labels merged into this topic (max 25)."
+        },
+        "questions": {
+          "type": "array",
+          "description": "Bounded list of deduplicated multiple-choice review questions (1-50)."
+        },
+        "isPublished": {
+          "type": "boolean",
+          "description": "Whether students can select and play this topic without signing in."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when this topic was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when this topic was last updated."
+        }
+      },
+      "required": [
+        "topicId",
+        "ownerUid",
+        "unitOrder",
+        "unitName",
+        "topicTitle",
+        "studentSummary",
+        "standards",
+        "questions",
+        "isPublished",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Private player profile root documents, strictly accessible only by the matching verified owner."
+    },
+    "/users/{userId}/deviceSaves/{deviceId}": {
+      "schema": {
+        "$ref": "#/entities/DeviceDynastySave"
+      },
+      "description": "Online dynasty saves anchored beneath each verified player's user document (uses shared 'activeCareer' ID for cross-device sync)."
+    },
+    "/admins/{adminId}": {
+      "schema": {
+        "$ref": "#/entities/AdminRecord"
+      },
+      "description": "Read-only teacher admin records for co-teacher authorization."
+    },
+    "/reviewTopics/{topicId}": {
+      "schema": {
+        "$ref": "#/entities/ReviewTopic"
+      },
+      "description": "Published Algebra review topics and question banks readable by students and manageable only by verified teacher admins."
+    }
+  }
+}
