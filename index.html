@@ -9369,9 +9369,12 @@ function ensureCareerSeasonIntegrity() {
         sfx.playClick();
         hubSaveBtn.disabled = true;
         hubSaveBtn.textContent = 'SAVING...';
-        await saveCareer(true);
-        hubSaveBtn.disabled = false;
-        hubSaveBtn.textContent = 'SAVE';
+        try {
+          await saveCareer(true);
+        } finally {
+          hubSaveBtn.disabled = false;
+          hubSaveBtn.textContent = 'SAVE';
+        }
       });
     }
 

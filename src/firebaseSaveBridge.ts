@@ -493,57 +493,75 @@ async function saveCareerCloudImpl(careerObj: CareerLike): Promise<boolean> {
     return false;
   }
 
-  await ensureUserProfile(user);
+  const performCloudSync = async (): Promise<boolean> => {
+    await ensureUserProfile(user);
 
-  const normalized = normalizeCareerPayload(cleanLocal);
-  const savePath = `users/${user.uid}/deviceSaves/${CLOUD_SAVE_ID}`;
-  const saveRef = doc(db, 'users', user.uid, 'deviceSaves', CLOUD_SAVE_ID);
+    const normalized = normalizeCareerPayload(cleanLocal);
+    const savePath = `users/${user.uid}/deviceSaves/${CLOUD_SAVE_ID}`;
+    const saveRef = doc(db, 'users', user.uid, 'deviceSaves', CLOUD_SAVE_ID);
 
-  let existingSave;
+    let existingSave;
+    try {
+      existingSave = await getDoc(saveRef);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.GET, savePath);
+    }
+
+    if (!existingSave.exists()) {
+      try {
+        await setDoc(saveRef, {
+          ownerUid: user.uid,
+          deviceId: CLOUD_SAVE_ID,
+          deviceLabel,
+          teamId: normalized.teamId,
+          season: normalized.season,
+          week: normalized.week,
+          phase: normalized.phase,
+          rings: normalized.rings,
+          careerData: normalized.careerData,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      } catch (err) {
+        handleFirestoreError(err, OperationType.CREATE, savePath);
+      }
+    } else {
+      try {
+        await updateDoc(saveRef, {
+          deviceLabel,
+          teamId: normalized.teamId,
+          season: normalized.season,
+          week: normalized.week,
+          phase: normalized.phase,
+          rings: normalized.rings,
+          careerData: normalized.careerData,
+          updatedAt: serverTimestamp(),
+        });
+      } catch (err) {
+        handleFirestoreError(err, OperationType.UPDATE, savePath);
+      }
+    }
+
+    cloudSyncStatusText = 'SYNCED';
+    renderCloudBarUI();
+    return true;
+  };
+
+  let timerId: ReturnType<typeof setTimeout> | undefined;
   try {
-    existingSave = await getDoc(saveRef);
-  } catch (err) {
-    handleFirestoreError(err, OperationType.GET, savePath);
+    return await Promise.race([
+      performCloudSync(),
+      new Promise<boolean>((resolve) => {
+        timerId = setTimeout(() => {
+          cloudSyncStatusText = 'SAVED LOCALLY (CLOUD TIMEOUT)';
+          renderCloudBarUI();
+          resolve(false);
+        }, 9000);
+      }),
+    ]);
+  } finally {
+    if (timerId !== undefined) clearTimeout(timerId);
   }
-
-  if (!existingSave.exists()) {
-    try {
-      await setDoc(saveRef, {
-        ownerUid: user.uid,
-        deviceId: CLOUD_SAVE_ID,
-        deviceLabel,
-        teamId: normalized.teamId,
-        season: normalized.season,
-        week: normalized.week,
-        phase: normalized.phase,
-        rings: normalized.rings,
-        careerData: normalized.careerData,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, savePath);
-    }
-  } else {
-    try {
-      await updateDoc(saveRef, {
-        deviceLabel,
-        teamId: normalized.teamId,
-        season: normalized.season,
-        week: normalized.week,
-        phase: normalized.phase,
-        rings: normalized.rings,
-        careerData: normalized.careerData,
-        updatedAt: serverTimestamp(),
-      });
-    } catch (err) {
-      handleFirestoreError(err, OperationType.UPDATE, savePath);
-    }
-  }
-
-  cloudSyncStatusText = 'SYNCED';
-  renderCloudBarUI();
-  return true;
 }
 
 async function loadCareerCloudImpl(): Promise<CareerLike | null> {
