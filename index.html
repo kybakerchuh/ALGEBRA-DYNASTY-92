@@ -2601,6 +2601,9 @@
       activeQuestionState = null;
       const modal = document.getElementById('overlay-algebra-question');
       if (modal) modal.classList.add('hidden');
+      if (match && match.phase === 'QUESTION_PAUSE') {
+        match.phase = 'PLAY_OVER';
+      }
       if (typeof state.onContinue === 'function') {
         state.onContinue(state.isCorrect);
       }
@@ -7355,7 +7358,7 @@ function ensureCareerSeasonIntegrity() {
 
     function checkQuarterEnd(resumeFn) {
       if (!match) return false;
-      if (match.phase === 'POSTGAME' || match.phase === 'QUESTION_PAUSE') return true;
+      if (match.phase === 'POSTGAME' || activeQuestionState) return true;
       if (match.clock > 0) return false;
 
       if (match.quarter < 4) {
