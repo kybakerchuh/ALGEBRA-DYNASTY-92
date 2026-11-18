@@ -717,7 +717,7 @@
       <div id="aq-subline" class="text-xs sm:text-sm text-emerald-300">ANSWER CORRECTLY FOR A BONUS!</div>
 
       <div class="pixel-box bg-slate-900 p-3.5 sm:p-5 text-sm sm:text-lg text-white leading-relaxed">
-        <div id="aq-prompt" class="select-text" style="user-select:text;-webkit-user-select:text;">Solve for x...</div>
+        <div id="aq-prompt" class="select-text whitespace-pre-line" style="user-select:text;-webkit-user-select:text;">Solve for x...</div>
       </div>
 
       <div id="aq-choices" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
@@ -729,6 +729,26 @@
         <button id="btn-aq-continue" class="pixel-btn btn-green w-full py-2.5 sm:py-3 text-xs sm:text-sm mt-1">CONTINUE [SPACE / ENTER]</button>
       </div>
     </div>
+  </div>
+
+  <!-- Password Lock Modal for Review Mode ON/OFF -->
+  <div id="overlay-review-password" class="hidden fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-[70]">
+    <form id="form-review-password" class="pixel-box-gold max-w-md w-full p-5 sm:p-6 bg-slate-950 space-y-4">
+      <div class="flex items-center justify-between gap-2 border-b-2 border-slate-700 pb-2.5">
+        <div class="text-sm sm:text-base text-yellow-400 font-bold">TEACHER LOCK</div>
+        <button id="btn-cancel-review-password" type="button" class="pixel-btn btn-red px-2.5 py-1 text-[10px]">CANCEL</button>
+      </div>
+      <div id="review-password-desc" class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+        Enter the password to change Algebra Review Mode.
+      </div>
+      <div class="space-y-2">
+        <input id="inp-review-password" type="password" autocomplete="off" placeholder="Enter password..." class="w-full bg-slate-900 border-2 border-slate-600 focus:border-yellow-400 outline-none px-3 py-2.5 text-sm text-white select-text" style="user-select:text;-webkit-user-select:text;" />
+        <div id="review-password-error" class="hidden text-[11px] text-rose-400 font-bold">INCORRECT PASSWORD — TRY AGAIN</div>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-1">
+        <button id="btn-submit-review-password" type="submit" class="pixel-btn btn-green px-4 py-2 text-xs">UNLOCK &amp; TOGGLE</button>
+      </div>
+    </form>
   </div>
 
   <!-- =========================================================
@@ -775,7 +795,7 @@
         </div>
         <div class="flex flex-wrap items-center justify-center gap-2 shrink-0">
           <button id="btn-title-pick-topic" class="pixel-btn btn-blue px-3 py-2 text-[10px] sm:text-xs">CHOOSE TOPIC</button>
-          <button id="btn-title-review-toggle" class="pixel-btn btn-green px-3 py-2 text-[10px] sm:text-xs">REVIEW: ON</button>
+          <button id="btn-title-review-toggle" class="pixel-btn btn-green px-3 py-2 text-[10px] sm:text-xs" title="Password required">🔒 REVIEW: ON</button>
           <button id="btn-teacher-sync" class="pixel-btn btn-slate px-3 py-2 text-[10px] sm:text-xs">TEACHER SYNC</button>
         </div>
       </div>
@@ -2307,7 +2327,7 @@
     }
 
     function getSelectedTopicObj() {
-      if (!selectedTopicId || selectedTopicId === 'MIXED') return null;
+      if (!selectedTopicId || selectedTopicId === 'MIXED' || selectedTopicId.startsWith('UNIT:')) return null;
       const list = getAllReviewTopics();
       return list.find(t => t.topicId === selectedTopicId) || null;
     }
@@ -2315,7 +2335,11 @@
     function getSelectedTopicDisplayName() {
       if (!algebraReviewEnabled) return 'REVIEW PAUSED (OFF)';
       const list = getAllReviewTopics();
-      if (selectedTopicId && selectedTopicId !== 'MIXED') {
+      if (selectedTopicId && selectedTopicId.startsWith('UNIT:')) {
+        const unitName = selectedTopicId.slice(5);
+        if (list.some(t => t.unitName === unitName)) return unitName;
+        if (list.length > 0) selectedTopicId = 'MIXED';
+      } else if (selectedTopicId && selectedTopicId !== 'MIXED') {
         const found = list.find(t => t.topicId === selectedTopicId);
         if (found) return found.topicTitle;
         if (list.length > 0) {
@@ -2333,10 +2357,44 @@
         .replace(/"/g, '&quot;');
     }
 
+    const REVIEW_TOGGLE_PASSWORD = 'tokenbake';
+    let pendingReviewToggleCallback = null;
+
     function setAlgebraReviewEnabled(enabled) {
       algebraReviewEnabled = Boolean(enabled);
       try { window.localStorage.setItem('ad92_review_enabled', algebraReviewEnabled ? 'true' : 'false'); } catch {}
       updateTopicLabelsUI();
+    }
+
+    function openReviewPasswordModal(onSuccess) {
+      const modal = document.getElementById('overlay-review-password');
+      const desc = document.getElementById('review-password-desc');
+      const inp = document.getElementById('inp-review-password');
+      const errEl = document.getElementById('review-password-error');
+      if (!modal || !inp) return;
+      pendingReviewToggleCallback = typeof onSuccess === 'function' ? onSuccess : null;
+      const targetState = algebraReviewEnabled ? 'OFF' : 'ON';
+      if (desc) {
+        desc.textContent = `Enter the teacher password to switch Algebra Review Mode ${targetState}.`;
+      }
+      if (errEl) errEl.classList.add('hidden');
+      inp.value = '';
+      modal.classList.remove('hidden');
+      setTimeout(() => inp.focus(), 30);
+    }
+
+    function closeReviewPasswordModal() {
+      const modal = document.getElementById('overlay-review-password');
+      const inp = document.getElementById('inp-review-password');
+      const errEl = document.getElementById('review-password-error');
+      if (modal) modal.classList.add('hidden');
+      if (inp) inp.value = '';
+      if (errEl) errEl.classList.add('hidden');
+      pendingReviewToggleCallback = null;
+    }
+
+    function requestToggleAlgebraReview(onSuccess) {
+      openReviewPasswordModal(onSuccess);
     }
 
     function setSelectedTopicId(topicId) {
@@ -2363,7 +2421,7 @@
 
       const titleToggle = document.getElementById('btn-title-review-toggle');
       if (titleToggle) {
-        titleToggle.textContent = `REVIEW: ${algebraReviewEnabled ? 'ON' : 'OFF'}`;
+        titleToggle.textContent = `🔒 REVIEW: ${algebraReviewEnabled ? 'ON' : 'OFF'}`;
         titleToggle.classList.toggle('btn-green', algebraReviewEnabled);
         titleToggle.classList.toggle('btn-slate', !algebraReviewEnabled);
       }
@@ -2373,7 +2431,7 @@
 
       const hubToggle = document.getElementById('btn-hub-review-toggle');
       if (hubToggle) {
-        hubToggle.textContent = `REVIEW: ${algebraReviewEnabled ? 'ON' : 'OFF'}`;
+        hubToggle.textContent = `🔒 REVIEW: ${algebraReviewEnabled ? 'ON' : 'OFF'}`;
         hubToggle.classList.toggle('btn-green', algebraReviewEnabled);
         hubToggle.classList.toggle('btn-slate', !algebraReviewEnabled);
       }
@@ -2381,7 +2439,10 @@
       const gameBtn = document.getElementById('btn-game-topic');
       if (gameBtn) {
         const chosen = getSelectedTopicObj();
-        gameBtn.textContent = algebraReviewEnabled ? (chosen ? chosen.topicTitle : 'MIXED TOPIC') : 'REVIEW OFF';
+        const isUnit = selectedTopicId && selectedTopicId.startsWith('UNIT:');
+        gameBtn.textContent = algebraReviewEnabled
+          ? (chosen ? chosen.topicTitle : (isUnit ? selectedTopicId.slice(5) : 'MIXED TOPIC'))
+          : 'REVIEW OFF';
         gameBtn.classList.toggle('btn-gold', algebraReviewEnabled);
         gameBtn.classList.toggle('btn-slate', !algebraReviewEnabled);
       }
@@ -2412,8 +2473,8 @@
             <div class="text-xs text-yellow-300">ALGEBRA REVIEW TRIGGERS</div>
             <div class="text-[10px] text-slate-300">Questions appear on 1st Downs, Turnovers, Scoring Drives &amp; Quarter Ends</div>
           </div>
-          <button id="btn-tp-toggle-review" class="pixel-btn ${algebraReviewEnabled ? 'btn-green' : 'btn-slate'} px-3 py-2 text-[10px] sm:text-xs">
-            REVIEW MODE: ${algebraReviewEnabled ? 'ON' : 'OFF'}
+          <button id="btn-tp-toggle-review" class="pixel-btn ${algebraReviewEnabled ? 'btn-green' : 'btn-slate'} px-3 py-2 text-[10px] sm:text-xs" title="Password required">
+            🔒 REVIEW MODE: ${algebraReviewEnabled ? 'ON' : 'OFF'}
           </button>
         </div>
 
@@ -2427,9 +2488,17 @@
 
         ${sortedUnits.map(([key, unitTopics]) => {
           const unitTitle = key.split('||')[1] || 'Algebra Unit';
+          const unitKey = `UNIT:${unitTitle}`;
+          const isUnitActive = selectedTopicId === unitKey;
+          const unitQs = unitTopics.reduce((sum, ut) => sum + ((ut.questions && ut.questions.length) || 0), 0);
           return `
             <div class="space-y-2 pt-1">
-              <div class="text-[10px] sm:text-xs text-sky-300 border-b border-slate-700 pb-1">${escapeHtmlGame(unitTitle)}</div>
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 pb-1.5">
+                <div class="text-[10px] sm:text-xs font-bold text-sky-300">${escapeHtmlGame(unitTitle)}</div>
+                <button data-pick-topic="${escapeHtmlGame(unitKey)}" class="pixel-btn ${isUnitActive ? 'btn-gold' : 'btn-blue'} px-2 py-1 text-[8px] sm:text-[9px] shrink-0">
+                  ALL IN CATEGORY (${unitQs} Qs)
+                </button>
+              </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 ${unitTopics.map(t => {
                   const isActive = selectedTopicId === t.topicId;
@@ -2441,7 +2510,7 @@
                         <span class="text-[9px] px-1.5 py-0.5 bg-slate-800 text-emerald-300 border border-slate-700 shrink-0">${qCount} Qs</span>
                       </div>
                       <div class="text-[10px] text-slate-300 leading-snug">${escapeHtmlGame(t.studentSummary || '')}</div>
-                      ${t.isStarter ? '<div class="text-[9px] text-slate-400">STARTER BANK</div>' : '<div class="text-[9px] text-emerald-400">TEACHER CURRICULUM</div>'}
+                      ${t.isStarter ? '<div class="text-[9px] text-amber-300">OST PLAYBOOK BANK</div>' : '<div class="text-[9px] text-emerald-400">TEACHER CURRICULUM</div>'}
                     </button>
                   `;
                 }).join('')}
@@ -2453,21 +2522,25 @@
 
       document.getElementById('btn-tp-toggle-review')?.addEventListener('click', () => {
         sfx.playClick();
-        setAlgebraReviewEnabled(!algebraReviewEnabled);
-        renderTopicPickerBody();
-        if (!document.getElementById('screen-hub')?.classList.contains('hidden') && career && currentHubTab === 'office') {
-          openHub('office');
-        }
+        requestToggleAlgebraReview(() => {
+          renderTopicPickerBody();
+          if (!document.getElementById('screen-hub')?.classList.contains('hidden') && career && currentHubTab === 'office') {
+            openHub('office');
+          }
+        });
       });
 
       body.querySelectorAll('[data-pick-topic]').forEach(btn => {
         btn.addEventListener('click', () => {
           sfx.playCatch();
           const chosen = btn.getAttribute('data-pick-topic') || 'MIXED';
-          if (!algebraReviewEnabled) setAlgebraReviewEnabled(true);
           setSelectedTopicId(chosen);
           closeTopicPickerModal();
-          showToast(`TOPIC SET: ${getSelectedTopicDisplayName()}`);
+          showToast(
+            algebraReviewEnabled
+              ? `TOPIC SET: ${getSelectedTopicDisplayName()}`
+              : 'TOPIC SAVED (REVIEW MODE IS LOCKED OFF)'
+          );
           if (!document.getElementById('screen-hub')?.classList.contains('hidden') && career && currentHubTab === 'office') {
             openHub('office');
           }
@@ -2504,8 +2577,16 @@
     }
 
     function pickNextReviewQuestion() {
+      const allTopics = getAllReviewTopics();
       const chosenTopic = getSelectedTopicObj();
-      const topics = chosenTopic ? [chosenTopic] : getAllReviewTopics();
+      let topics = allTopics;
+      if (chosenTopic) {
+        topics = [chosenTopic];
+      } else if (selectedTopicId && selectedTopicId.startsWith('UNIT:')) {
+        const uName = selectedTopicId.slice(5);
+        const unitMatches = allTopics.filter(t => t.unitName === uName);
+        if (unitMatches.length) topics = unitMatches;
+      }
       const pool = [];
       topics.forEach(t => {
         (t.questions || []).forEach(q => {
@@ -4735,9 +4816,12 @@
         if (window.__cloudSaveBridge && typeof window.__cloudSaveBridge.saveCareerCloud === 'function') {
           const ok = await window.__cloudSaveBridge.saveCareerCloud(snapshot);
           if (showConfirmToast) {
-            if (ok) {
-              const t = getUserTeam(career.teamId);
+            const mode = window.__cloudSaveBridge.lastSaveMode;
+            const t = getUserTeam(career.teamId);
+            if (ok || mode === 'CLOUD') {
               showToast(`DYNASTY SAVED TO CLOUD! (${t.id} • S${career.season} WK ${Math.min(18, career.week)})`);
+            } else if (mode === 'LOCAL_PENDING') {
+              showToast(`SAVED LOCALLY! (${t.id} • CLOUD SYNCING IN BACKGROUND)`);
             } else {
               showToast('SAVED LOCALLY! (SIGN IN WITH GOOGLE FOR CROSS-DEVICE CLOUD SAVE)');
             }
@@ -5311,7 +5395,7 @@ function ensureCareerSeasonIntegrity() {
               </div>
               <div class="flex items-center gap-2 shrink-0">
                 <button id="btn-hub-change-topic" class="pixel-btn btn-blue px-3 py-1.5 text-[10px]">CHANGE TOPIC</button>
-                <button id="btn-hub-review-toggle" class="pixel-btn ${algebraReviewEnabled ? 'btn-green' : 'btn-slate'} px-3 py-1.5 text-[10px]">REVIEW: ${algebraReviewEnabled ? 'ON' : 'OFF'}</button>
+                <button id="btn-hub-review-toggle" class="pixel-btn ${algebraReviewEnabled ? 'btn-green' : 'btn-slate'} px-3 py-1.5 text-[10px]" title="Password required">🔒 REVIEW: ${algebraReviewEnabled ? 'ON' : 'OFF'}</button>
               </div>
             </div>
 
@@ -5401,8 +5485,9 @@ function ensureCareerSeasonIntegrity() {
       if (hubRevToggleBtn) {
         hubRevToggleBtn.addEventListener('click', () => {
           sfx.playClick();
-          setAlgebraReviewEnabled(!algebraReviewEnabled);
-          openHub('office');
+          requestToggleAlgebraReview(() => {
+            openHub('office');
+          });
         });
       }
 
@@ -9016,10 +9101,18 @@ function ensureCareerSeasonIntegrity() {
     window.addEventListener('keydown', (e) => {
       keys[e.code] = true;
 
-      // Algebra Question / Topic Picker / Teacher Sync modal keyboard controls
+      // Algebra Question / Topic Picker / Teacher Sync / Password modal keyboard controls
+      const passwordOpen = !document.getElementById('overlay-review-password')?.classList.contains('hidden');
       const teacherOpen = !document.getElementById('overlay-teacher-sync')?.classList.contains('hidden');
       const pickerOpen = !document.getElementById('overlay-topic-picker')?.classList.contains('hidden');
       const questionOpen = !document.getElementById('overlay-algebra-question')?.classList.contains('hidden');
+
+      if (passwordOpen) {
+        if (e.code === 'Escape') {
+          closeReviewPasswordModal();
+        }
+        return;
+      }
 
       if (teacherOpen || pickerOpen) {
         if (e.code === 'Escape') {
@@ -9311,18 +9404,24 @@ function ensureCareerSeasonIntegrity() {
         contBtn.disabled = true;
         contBtn.textContent = 'LOADING...';
       }
-      const loaded = await loadCareerAsync();
-      if (contBtn) {
-        contBtn.disabled = false;
-        contBtn.textContent = 'CONTINUE';
-      }
-      if (loaded && loaded.teamId) {
-        career = loaded;
-        const t = getUserTeam(career.teamId);
-        showToast(`LOADED ${t.city} ${t.name} (SEASON ${career.season} • WEEK ${Math.min(18, career.week)})`);
-        openHub('office');
-      } else {
-        showToast('NO DYNASTY SAVE FOUND! START A NEW DYNASTY FIRST.');
+      try {
+        const loaded = await loadCareerAsync();
+        if (loaded && loaded.teamId) {
+          career = loaded;
+          const t = getUserTeam(career.teamId);
+          showToast(`LOADED ${t.city} ${t.name} (SEASON ${career.season} • WEEK ${Math.min(18, career.week)})`);
+          openHub('office');
+        } else {
+          showToast('NO DYNASTY SAVE FOUND! START A NEW DYNASTY FIRST.');
+        }
+      } catch (e) {
+        console.warn('Load failed:', e);
+        showToast('LOAD ERROR — PLEASE TRY AGAIN');
+      } finally {
+        if (contBtn) {
+          contBtn.disabled = false;
+          contBtn.textContent = 'CONTINUE';
+        }
       }
     });
 
@@ -9696,7 +9795,32 @@ function ensureCareerSeasonIntegrity() {
     });
     document.getElementById('btn-title-review-toggle')?.addEventListener('click', () => {
       sfx.playClick();
-      setAlgebraReviewEnabled(!algebraReviewEnabled);
+      requestToggleAlgebraReview();
+    });
+    document.getElementById('btn-cancel-review-password')?.addEventListener('click', () => {
+      sfx.playClick();
+      closeReviewPasswordModal();
+    });
+    document.getElementById('form-review-password')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inp = document.getElementById('inp-review-password');
+      const errEl = document.getElementById('review-password-error');
+      const entered = (inp?.value || '').trim();
+      if (entered === REVIEW_TOGGLE_PASSWORD) {
+        sfx.playCatch();
+        const cb = pendingReviewToggleCallback;
+        setAlgebraReviewEnabled(!algebraReviewEnabled);
+        closeReviewPasswordModal();
+        showToast(`ALGEBRA REVIEW MODE: ${algebraReviewEnabled ? 'ON' : 'OFF'}`);
+        if (cb) cb();
+      } else {
+        sfx.playTurnover();
+        if (errEl) errEl.classList.remove('hidden');
+        if (inp) {
+          inp.focus();
+          inp.select();
+        }
+      }
     });
     document.getElementById('btn-game-topic')?.addEventListener('click', () => {
       sfx.playClick();

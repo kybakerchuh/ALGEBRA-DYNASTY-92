@@ -13,7 +13,7 @@ import {
   doc,
   getDoc,
   getDocFromServer,
-  getFirestore,
+  initializeFirestore,
   onSnapshot,
   serverTimestamp,
   setDoc,
@@ -24,7 +24,9 @@ import firebaseConfig from '../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 const firestoreDatabaseId = (firebaseConfig as { firestoreDatabaseId?: string }).firestoreDatabaseId;
-export const db = firestoreDatabaseId ? getFirestore(app, firestoreDatabaseId) : getFirestore(app);
+export const db = firestoreDatabaseId
+  ? initializeFirestore(app, { experimentalAutoDetectLongPolling: true }, firestoreDatabaseId)
+  : initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 export const auth = getAuth(app);
 
 export enum OperationType {
@@ -142,6 +144,7 @@ interface CloudSaveBridge {
   userEmail: string | null;
   displayName: string | null;
   cachedSave: CareerLike | null;
+  lastSaveMode?: 'CLOUD' | 'LOCAL' | 'LOCAL_PENDING';
   signInWithGoogle: () => Promise<boolean>;
   signOutCloud: () => Promise<void>;
   saveCareerCloud: (careerObj: CareerLike) => Promise<boolean>;
@@ -483,12 +486,14 @@ function renderCloudBarUI(): void {
 async function saveCareerCloudImpl(careerObj: CareerLike): Promise<boolean> {
   if (!careerObj || typeof careerObj !== 'object') return false;
 
+  const bridge = window.__cloudSaveBridge!;
   const cleanLocal = stripUndefinedDeep(careerObj) as CareerLike;
-  window.__cloudSaveBridge!.cachedSave = cleanLocal;
+  bridge.cachedSave = cleanLocal;
   writeLocalSave(cleanLocal);
 
   const user = auth.currentUser;
   if (!user || !user.emailVerified) {
+    bridge.lastSaveMode = 'LOCAL';
     renderCloudBarUI();
     return false;
   }
@@ -542,21 +547,31 @@ async function saveCareerCloudImpl(careerObj: CareerLike): Promise<boolean> {
       }
     }
 
+    bridge.lastSaveMode = 'CLOUD';
     cloudSyncStatusText = 'SYNCED';
     renderCloudBarUI();
     return true;
   };
 
   let timerId: ReturnType<typeof setTimeout> | undefined;
+  const syncPromise = performCloudSync().catch((err) => {
+    console.warn('Cloud save error (local save preserved):', err);
+    bridge.lastSaveMode = 'LOCAL';
+    cloudSyncStatusText = 'SAVED LOCALLY';
+    renderCloudBarUI();
+    return false;
+  });
+
   try {
     return await Promise.race([
-      performCloudSync(),
+      syncPromise,
       new Promise<boolean>((resolve) => {
         timerId = setTimeout(() => {
-          cloudSyncStatusText = 'SAVED LOCALLY (CLOUD TIMEOUT)';
+          bridge.lastSaveMode = 'LOCAL_PENDING';
+          cloudSyncStatusText = 'SYNCING IN BACKGROUND...';
           renderCloudBarUI();
           resolve(false);
-        }, 9000);
+        }, 2500);
       }),
     ]);
   } finally {
@@ -566,50 +581,80 @@ async function saveCareerCloudImpl(careerObj: CareerLike): Promise<boolean> {
 
 async function loadCareerCloudImpl(): Promise<CareerLike | null> {
   const user = auth.currentUser;
-  if (user && user.emailVerified) {
-    const savePath = `users/${user.uid}/deviceSaves/${CLOUD_SAVE_ID}`;
-    const saveRef = doc(db, 'users', user.uid, 'deviceSaves', CLOUD_SAVE_ID);
-    try {
-      const snap = await getDoc(saveRef);
-      if (snap.exists()) {
-        const data = snap.data();
-        if (data && data.ownerUid === user.uid && data.careerData && typeof data.careerData === 'object') {
-          const careerCopy = restoreFromFirestore(JSON.parse(JSON.stringify(data.careerData))) as CareerLike;
-          window.__cloudSaveBridge!.cachedSave = careerCopy;
-          writeLocalSave(careerCopy);
-          cloudSyncStatusText = 'SYNCED';
-          renderCloudBarUI();
-          return careerCopy;
-        }
-      }
-    } catch (err) {
-      handleFirestoreError(err, OperationType.GET, savePath);
-    }
+  const localSave = readLocalSave();
 
-    // Fallback: migrate from an earlier per-device cloud slot on first cross-device login if activeCareer is empty
-    const legacyId = getLegacyDeviceId();
-    if (legacyId) {
-      const legacyPath = `users/${user.uid}/deviceSaves/${legacyId}`;
+  if (user && user.emailVerified) {
+    const fetchCloudCareer = async (): Promise<CareerLike | null> => {
+      const savePath = `users/${user.uid}/deviceSaves/${CLOUD_SAVE_ID}`;
+      const saveRef = doc(db, 'users', user.uid, 'deviceSaves', CLOUD_SAVE_ID);
       try {
-        const legacySnap = await getDoc(doc(db, 'users', user.uid, 'deviceSaves', legacyId));
-        if (legacySnap.exists()) {
-          const legacyData = legacySnap.data();
-          if (legacyData && legacyData.careerData && typeof legacyData.careerData === 'object') {
-            const careerCopy = restoreFromFirestore(JSON.parse(JSON.stringify(legacyData.careerData))) as CareerLike;
-            await saveCareerCloudImpl(careerCopy);
+        const snap = await getDoc(saveRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data && data.ownerUid === user.uid && data.careerData && typeof data.careerData === 'object') {
+            const careerCopy = restoreFromFirestore(JSON.parse(JSON.stringify(data.careerData))) as CareerLike;
+            window.__cloudSaveBridge!.cachedSave = careerCopy;
+            writeLocalSave(careerCopy);
+            cloudSyncStatusText = 'SYNCED';
+            renderCloudBarUI();
             return careerCopy;
           }
         }
       } catch (err) {
-        handleFirestoreError(err, OperationType.GET, legacyPath);
+        try {
+          handleFirestoreError(err, OperationType.GET, savePath);
+        } catch (loggedErr) {
+          console.warn('Cloud load fallback to local save:', loggedErr);
+        }
       }
+
+      const legacyId = getLegacyDeviceId();
+      if (legacyId) {
+        const legacyPath = `users/${user.uid}/deviceSaves/${legacyId}`;
+        try {
+          const legacySnap = await getDoc(doc(db, 'users', user.uid, 'deviceSaves', legacyId));
+          if (legacySnap.exists()) {
+            const legacyData = legacySnap.data();
+            if (legacyData && legacyData.careerData && typeof legacyData.careerData === 'object') {
+              const careerCopy = restoreFromFirestore(JSON.parse(JSON.stringify(legacyData.careerData))) as CareerLike;
+              void saveCareerCloudImpl(careerCopy);
+              return careerCopy;
+            }
+          }
+        } catch (err) {
+          try {
+            handleFirestoreError(err, OperationType.GET, legacyPath);
+          } catch (loggedErr) {
+            console.warn('Legacy cloud load fallback to local save:', loggedErr);
+          }
+        }
+      }
+      return null;
+    };
+
+    let timerId: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const cloudResult = await Promise.race([
+        fetchCloudCareer(),
+        new Promise<CareerLike | null>((resolve) => {
+          timerId = setTimeout(() => resolve(null), 3000);
+        }),
+      ]);
+      if (cloudResult && cloudResult.teamId) {
+        return cloudResult;
+      }
+    } finally {
+      if (timerId !== undefined) clearTimeout(timerId);
     }
   }
 
-  const localSave = readLocalSave();
   if (localSave) {
     window.__cloudSaveBridge!.cachedSave = localSave;
     return JSON.parse(JSON.stringify(localSave)) as CareerLike;
+  }
+  const cached = window.__cloudSaveBridge?.cachedSave;
+  if (cached && cached.teamId) {
+    return JSON.parse(JSON.stringify(cached)) as CareerLike;
   }
   return null;
 }

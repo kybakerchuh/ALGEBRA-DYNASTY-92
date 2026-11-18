@@ -475,7 +475,15 @@ Here are all the rows from the spreadsheet (each row has a curriculum standard a
 ${JSON.stringify(promptInput)}
 
 TASK:
-1. Group ALL rows together in ONE unified curriculum map organized into logical Algebra Units in standard teaching order (e.g., 1. Foundations & Expressions, 2. Solving Linear Equations & Inequalities, 3. Linear Functions & Graphing, 4. Systems of Equations & Inequalities, 5. Exponents & Exponential Functions, 6. Polynomials & Factoring, 7. Quadratic Functions & Equations, 8. Radicals / Rationals / Data & Functions). Only create units that match the actual rows present.
+1. Group ALL rows together in ONE unified curriculum map organized into these exact Algebra OST Playbook Units in order (only include units matching the rows present):
+   - UnitOrder 1: "EXPRESSIONS, EQUATIONS, AND INEQUALITIES"
+   - UnitOrder 2: "FUNCTIONS AND FUNCTION NOTATIONS"
+   - UnitOrder 3: "CREATING, GRAPHING, MODELING LINEAR"
+   - UnitOrder 4: "CREATING, SOLVING, MODELING SYSTEMS OF EQUATIONS"
+   - UnitOrder 5: "ALL THINGS POLYNOMIALS"
+   - UnitOrder 6: "FACTORING, SOLVING, MODELING, ANALYZING QUADRATICS"
+   - UnitOrder 7: "CREATE, ANALYZE, MODEL EXPONENTIAL FUNCTIONS"
+   - UnitOrder 8: "DATA ANALYSIS (BOX WHISKER, LINE OF BEST FIT, DATA, ETC...)"
 2. Translate technical standard codes/descriptions into clear, student-friendly Topic Names (e.g., "Solving Multi-Step Equations", "Graphing Slope-Intercept Form", "Factoring Quadratics"). Do NOT put cryptic standard codes (like HSA.REI.B.4) in topicTitle—put the standards in the standards array!
 3. MERGE closely related or overlapping rows/standards into ONE unified topic so there are ZERO duplicates and closely related skills do NOT end up scattered across different spots.
 4. Keep topics focused and digestible (typically 1-4 related rows per topic; aim for roughly 6 to 18 total topics depending on the sheet size).
@@ -816,11 +824,12 @@ ${avoidList.length > 0 ? `DO NOT REPEAT OR CLOSELY PARAPHRASE THESE EXISTING QUE
 
 REQUIREMENTS:
 1. Generate exactly ${targetCount} distinct, non-duplicate multiple-choice Algebra questions covering the topic and standards above.
-2. Double-check every single calculation! The choice at correctIndex MUST be mathematically 100% exact, and the other 3 distractors must be plausible common algebra mistakes (sign error, reciprocal, forgot constant, etc.) and NEVER equal to the correct answer.
-3. Keep question prompts clear and readable on a game modal (use clean Unicode math like x², √, ≤, ≥, ≠, ÷, ·, or clean fractions like 3/4 — NO raw $$ LaTeX syntax).
-4. Each question must be solvable without needing an external picture unless all coordinates/equations are explicitly stated in the prompt!
-5. Provide a clear 1-sentence explanation showing how to get the answer.
-6. Mix difficulties across easy, medium, and hard.`;
+2. STRICT RATIONAL ANSWERS ONLY: Every numeric answer MUST be a clean rational number (an integer, an exact simple fraction like 3/4 or -1/2, or a short exact terminating decimal like 1.5 or 0.75). NEVER generate irrational numbers (such as √2 or π) or non-terminating/messy rounded decimals!
+3. Double-check every single calculation! The choice at correctIndex MUST be mathematically 100% exact, and the other 3 distractors must be plausible common algebra mistakes (sign error, reciprocal, forgot constant, etc.) and NEVER equal to the correct answer.
+4. Keep question prompts clear and readable on a game modal (use clean Unicode math like x², √, ≤, ≥, ≠, ÷, ·, or clean fractions like 3/4 — NO raw $$ LaTeX syntax).
+5. Each question must be solvable without needing an external picture unless all coordinates/equations are explicitly stated in the prompt!
+6. Provide a clear 1-sentence explanation showing how to get the answer.
+7. Mix difficulties across easy, medium, and hard.`;
 
       const parts: Part[] = [...pdfParts, { text: textPrompt }];
 

@@ -17,6 +17,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { auth, db, handleFirestoreError, OperationType } from './firebaseSaveBridge';
+import { OST_PLAYBOOK_TOPICS } from './ostPlaybookTopics';
 
 export interface ReviewQuestion {
   id: string;
@@ -75,183 +76,6 @@ const WORKSPACE_SCOPES = [
   'https://www.googleapis.com/auth/documents.readonly',
   'https://www.googleapis.com/auth/presentations.readonly',
   'https://www.googleapis.com/auth/drive.readonly',
-];
-
-const STARTER_TOPICS: ReviewTopic[] = [
-  {
-    topicId: 'starter_linear_equations',
-    unitOrder: 1,
-    unitName: 'Unit 1: Solving Equations',
-    topicTitle: 'Solving Multi-Step Linear Equations',
-    studentSummary: 'Combine like terms, distribute, and solve equations with variables on both sides.',
-    standards: ['HSA.REI.B.3'],
-    isPublished: true,
-    isStarter: true,
-    questions: [
-      {
-        id: 'st_le_1',
-        prompt: 'Solve for x:  3(x - 4) = 18',
-        choices: ['x = 2', 'x = 6', 'x = 10', 'x = 22'],
-        correctIndex: 2,
-        explanation: 'Divide both sides by 3 to get x - 4 = 6, then add 4 to get x = 10.',
-        standardCode: 'HSA.REI.B.3',
-        difficulty: 'easy',
-      },
-      {
-        id: 'st_le_2',
-        prompt: 'Solve for x:  5x - 7 = 2x + 11',
-        choices: ['x = 4/3', 'x = 6', 'x = 18', 'x = -6'],
-        correctIndex: 1,
-        explanation: 'Subtract 2x from both sides (3x - 7 = 11), add 7 (3x = 18), then divide by 3.',
-        standardCode: 'HSA.REI.B.3',
-        difficulty: 'medium',
-      },
-      {
-        id: 'st_le_3',
-        prompt: 'Solve for y:  -2(y + 5) + 4 = 12',
-        choices: ['y = -9', 'y = -4', 'y = 1', 'y = 9'],
-        correctIndex: 0,
-        explanation: 'Distribute to get -2y - 10 + 4 = 12, so -2y - 6 = 12, -2y = 18, y = -9.',
-        standardCode: 'HSA.REI.B.3',
-        difficulty: 'medium',
-      },
-      {
-        id: 'st_le_4',
-        prompt: 'How many solutions does  4(x + 2) = 4x + 8  have?',
-        choices: ['No solution', 'Exactly one solution (x = 2)', 'Exactly one solution (x = 0)', 'Infinitely many solutions'],
-        correctIndex: 3,
-        explanation: 'Distributing gives 4x + 8 = 4x + 8, which is an identity true for every x.',
-        standardCode: 'HSA.REI.B.3',
-        difficulty: 'medium',
-      },
-    ],
-  },
-  {
-    topicId: 'starter_linear_functions',
-    unitOrder: 2,
-    unitName: 'Unit 2: Linear Functions',
-    topicTitle: 'Slope, Intercepts & Writing Linear Equations',
-    studentSummary: 'Find slope from two points and write equations in slope-intercept form.',
-    standards: ['HSF.IF.C.7a', 'HSA.CED.A.2'],
-    isPublished: true,
-    isStarter: true,
-    questions: [
-      {
-        id: 'st_lf_1',
-        prompt: 'What is the slope of the line passing through (2, -3) and (6, 9)?',
-        choices: ['1/3', '3', '-3', '2'],
-        correctIndex: 1,
-        explanation: 'Use (y2 - y1)/(x2 - x1) = (9 - (-3)) / (6 - 2) = 12 / 4 = 3.',
-        standardCode: 'HSF.IF.C.7a',
-        difficulty: 'easy',
-      },
-      {
-        id: 'st_lf_2',
-        prompt: 'Write the equation of a line with slope -2 that passes through (0, 5).',
-        choices: ['y = 5x - 2', 'y = -2x + 5', 'y = -2x - 5', 'y = 2x + 5'],
-        correctIndex: 1,
-        explanation: 'Since (0, 5) is the y-intercept, b = 5 and m = -2 gives y = -2x + 5.',
-        standardCode: 'HSA.CED.A.2',
-        difficulty: 'easy',
-      },
-      {
-        id: 'st_lf_3',
-        prompt: 'What is the x-intercept of the line  3x - 4y = 24 ?',
-        choices: ['(8, 0)', '(0, -6)', '(-6, 0)', '(0, 8)'],
-        correctIndex: 0,
-        explanation: 'Set y = 0: 3x = 24, so x = 8, giving the x-intercept (8, 0).',
-        standardCode: 'HSF.IF.C.7a',
-        difficulty: 'medium',
-      },
-      {
-        id: 'st_lf_4',
-        prompt: 'Which line is parallel to  y = (2/3)x - 7  and passes through (3, 4)?',
-        choices: ['y = -(3/2)x + 2', 'y = (2/3)x + 2', 'y = (2/3)x + 4', 'y = (3/2)x - 1/2'],
-        correctIndex: 1,
-        explanation: 'Parallel lines share slope 2/3. Plugging in (3, 4): 4 = (2/3)(3) + b → 4 = 2 + b → b = 2.',
-        standardCode: 'HSA.CED.A.2',
-        difficulty: 'hard',
-      },
-    ],
-  },
-  {
-    topicId: 'starter_systems',
-    unitOrder: 3,
-    unitName: 'Unit 3: Systems of Equations',
-    topicTitle: 'Solving Systems by Substitution & Elimination',
-    studentSummary: 'Find the intersection point (x, y) of two linear equations.',
-    standards: ['HSA.REI.C.6'],
-    isPublished: true,
-    isStarter: true,
-    questions: [
-      {
-        id: 'st_sys_1',
-        prompt: 'Solve the system:  x + y = 10  and  x - y = 4',
-        choices: ['(7, 3)', '(3, 7)', '(6, 4)', '(8, 2)'],
-        correctIndex: 0,
-        explanation: 'Add the two equations: 2x = 14 so x = 7, then 7 + y = 10 gives y = 3.',
-        standardCode: 'HSA.REI.C.6',
-        difficulty: 'easy',
-      },
-      {
-        id: 'st_sys_2',
-        prompt: 'Solve the system:  y = 2x - 1  and  3x + y = 14',
-        choices: ['(3, 5)', '(5, 3)', '(4, 7)', '(2, 3)'],
-        correctIndex: 0,
-        explanation: 'Substitute y = 2x - 1 into 3x + y = 14: 5x - 1 = 14 → x = 3, y = 2(3) - 1 = 5.',
-        standardCode: 'HSA.REI.C.6',
-        difficulty: 'medium',
-      },
-      {
-        id: 'st_sys_3',
-        prompt: 'Two lines have the same slope but different y-intercepts. How many solutions does the system have?',
-        choices: ['One solution', 'Two solutions', 'Infinitely many solutions', 'No solution'],
-        correctIndex: 3,
-        explanation: 'Parallel lines with different y-intercepts never intersect, so there is no solution.',
-        standardCode: 'HSA.REI.C.6',
-        difficulty: 'easy',
-      },
-    ],
-  },
-  {
-    topicId: 'starter_quadratics',
-    unitOrder: 4,
-    unitName: 'Unit 4: Quadratics & Factoring',
-    topicTitle: 'Factoring & Solving Quadratic Equations',
-    studentSummary: 'Factor trinomials, difference of squares, and solve quadratic equations.',
-    standards: ['HSA.SSE.B.3a', 'HSA.REI.B.4b'],
-    isPublished: true,
-    isStarter: true,
-    questions: [
-      {
-        id: 'st_q_1',
-        prompt: 'Factor completely:  x² - 9x + 14',
-        choices: ['(x - 2)(x - 7)', '(x + 2)(x + 7)', '(x - 1)(x - 14)', '(x + 2)(x - 7)'],
-        correctIndex: 0,
-        explanation: 'Find two numbers multiplying to +14 and adding to -9: -2 and -7.',
-        standardCode: 'HSA.SSE.B.3a',
-        difficulty: 'easy',
-      },
-      {
-        id: 'st_q_2',
-        prompt: 'What are the solutions to  x² - 25 = 0 ?',
-        choices: ['x = 5 only', 'x = -5 and x = 5', 'x = 25 and x = -25', 'x = 0 and x = 5'],
-        correctIndex: 1,
-        explanation: 'Difference of squares factors as (x - 5)(x + 5) = 0, giving x = 5 or x = -5.',
-        standardCode: 'HSA.REI.B.4b',
-        difficulty: 'easy',
-      },
-      {
-        id: 'st_q_3',
-        prompt: 'Solve for x:  2x² + 5x - 3 = 0',
-        choices: ['x = -3 and x = 1/2', 'x = 3 and x = -1/2', 'x = -3 and x = -1/2', 'x = 3/2 and x = -1'],
-        correctIndex: 0,
-        explanation: 'Factor as (2x - 1)(x + 3) = 0, so x = 1/2 or x = -3.',
-        standardCode: 'HSA.REI.B.4b',
-        difficulty: 'hard',
-      },
-    ],
-  },
 ];
 
 // Strictly in-memory OAuth access token cache (never stored in localStorage/sessionStorage)
@@ -470,7 +294,16 @@ async function deleteTopicFromFirestore(topicId: string): Promise<void> {
 }
 
 function getAvailableTopics(): ReviewTopic[] {
-  return publishedTopicsCache.length > 0 ? publishedTopicsCache : STARTER_TOPICS;
+  const byId = new Map<string, ReviewTopic>();
+  for (const t of OST_PLAYBOOK_TOPICS) {
+    byId.set(t.topicId, t);
+  }
+  for (const t of publishedTopicsCache) {
+    byId.set(t.topicId, t);
+  }
+  return Array.from(byId.values()).sort(
+    (a, b) => a.unitOrder - b.unitOrder || a.topicTitle.localeCompare(b.topicTitle)
+  );
 }
 
 function escapeHtml(str: string): string {
@@ -576,7 +409,7 @@ function renderTeacherSyncModal(): void {
           <div class="text-xs sm:text-sm text-yellow-300">LIVE TOPICS IN FIRESTORE (${allLive.length})</div>
           <button id="btn-ts-refresh-live" class="pixel-btn btn-blue px-3 py-1.5 text-[10px]">REFRESH LIST</button>
         </div>
-        ${allLive.length === 0 ? `<div class="pixel-box bg-slate-900 p-4 text-xs text-slate-300">No teacher topics published yet. Students currently see the ${STARTER_TOPICS.length} built-in starter topics until you publish from your Sheet.</div>` : ''}
+        ${allLive.length === 0 ? `<div class="pixel-box bg-slate-900 p-4 text-xs text-slate-300">No extra teacher-synced topics in Firestore yet. Students already have all ${OST_PLAYBOOK_TOPICS.length} built-in OST Playbook topics live, and any Sheet topics you publish will appear alongside them.</div>` : ''}
         <div class="space-y-2 max-h-[55vh] overflow-y-auto pr-1">
           ${allLive.map((t) => `
             <div class="pixel-box bg-slate-900 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
