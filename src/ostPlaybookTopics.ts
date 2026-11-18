@@ -43,7 +43,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'st_le_4',
-        prompt: 'How many solutions does  4(x + 2) = 4x + 8  have?',
+        prompt: 'How many solutions does this equation have?\n4(x + 2) = 4x + 8',
         choices: [
           'No solution',
           'Exactly one solution (x = 2)',
@@ -120,7 +120,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_eq_8',
-        prompt: 'How many solutions does  6(x - 2) + 3 = 3(2x + 1)  have?',
+        prompt: 'How many solutions does this equation have?\n6(x - 2) + 3 = 3(2x + 1)',
         choices: [
           'No solution',
           'One solution (x = 0)',
@@ -173,7 +173,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_ee_4',
-        prompt: 'A student solved 4x + 5 = 31 - (x - 4):\nStep 1: 4x + 5 = 31 - x - 4\nStep 2: 4x + x = 31 - 4 - 5\nWhere is the first error?',
+        prompt: 'A student solved:\n4x + 5 = 31 - (x - 4)\nStep 1: 4x + 5 = 31 - x - 4\nStep 2: 4x + x = 31 - 4 - 5\nWhere is the first error?',
         choices: [
           'Step 1: forgot to distribute the negative sign to -4 (should be +4)',
           'Step 2: moved +5 across as -5 instead of +5',
@@ -196,7 +196,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_ee_6',
-        prompt: 'Eleanor tried to solve (1/2)(x + 18) = 4(2x - 6) - 9x.\nHer Step 1 was:  x + 18 = 8(2x - 6) - 9x.\nWhat mistake did she make in Step 1?',
+        prompt: 'Eleanor tried to solve:\n(1/2)(x + 18) = 4(2x - 6) - 9x\nHer Step 1 was:\nx + 18 = 8(2x - 6) - 9x\nWhat mistake did she make in Step 1?',
         choices: [
           'She multiplied 4 by 2 to get 8, which should stay 4',
           'She forgot to multiply -9x by 2 when clearing the 1/2',
@@ -219,7 +219,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_ee_8',
-        prompt: 'Fred solved 8(3x - 7) = -6(x + 7) + 4:\nStep 1: 24x - 56 = -6x - 42 + 4\nStep 2: 24x - 56 = -6x + 46\nStep 3: 30x = 102\nWhere did Fred first make an error?',
+        prompt: 'Fred solved:\n8(3x - 7) = -6(x + 7) + 4\nStep 1: 24x - 56 = -6x - 42 + 4\nStep 2: 24x - 56 = -6x + 46\nStep 3: 30x = 102\nWhere did Fred first make an error?',
         choices: [
           'Step 1: -6(x + 7) should be -6x + 42',
           'Step 2: -42 + 4 equals -38, not +46',
@@ -276,7 +276,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
     questions: [
       {
         id: 'ost_fi_1',
-        prompt: 'Is the set of ordered pairs {(2, 3), (2, 5), (0, -4), (-5, 2)} a function?',
+        prompt: 'Is this set of ordered pairs a function?\n{(2, 3), (2, 5), (0, -4), (-5, 2)}',
         choices: [
           'Yes, because all y-values are different',
           'Yes, because there are 4 points',
@@ -290,7 +290,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_fi_2',
-        prompt: 'Given the function {(1, 3), (2, 4), (5, 6)}, which ordered pair can be added so it REMAINS a function?',
+        prompt: 'Given the function:\n{(1, 3), (2, 4), (5, 6)}\nWhich ordered pair can be added so it REMAINS a function?',
         choices: ['(2, 2)', '(4, 4)', '(5, 7)', '(1, 6)'],
         correctIndex: 1,
         explanation: 'x = 4 is a brand-new input not already in {1, 2, 5}, so adding (4, 4) keeps it a function.',
@@ -341,7 +341,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_fi_6',
-        prompt: 'Consider {(3, 7), (k, 9), (5, 2), (8, 7)}. Which value of k makes this set NOT a function?',
+        prompt: 'Consider the set:\n{(3, 7), (k, 9), (5, 2), (8, 7)}\nWhich value of k makes this set NOT a function?',
         choices: ['k = 1', 'k = 4', 'k = 5', 'k = 7'],
         correctIndex: 2,
         explanation: 'If k = 5, the input 5 would map to both 9 and 2, breaking the function rule.',
@@ -509,7 +509,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'st_lf_3',
-        prompt: 'What is the x-intercept of the line  3x - 4y = 24 ?',
+        prompt: 'What is the x-intercept of the line:\n3x - 4y = 24',
         choices: ['(8, 0)', '(0, -6)', '(-6, 0)', '(0, 8)'],
         correctIndex: 0,
         explanation: 'Set y = 0: 3x = 24, so x = 8, giving the x-intercept (8, 0).',
@@ -518,7 +518,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'st_lf_4',
-        prompt: 'Which line is parallel to  y = (2/3)x - 7  and passes through (3, 4)?',
+        prompt: 'Which line passes through (3, 4) and is parallel to:\ny = (2/3)x - 7',
         choices: ['y = -(3/2)x + 2', 'y = (2/3)x + 2', 'y = (2/3)x + 4', 'y = (3/2)x - 1/2'],
         correctIndex: 1,
         explanation: 'Parallel lines share slope 2/3. Plugging in (3, 4): 4 = (2/3)(3) + b -> 4 = 2 + b -> b = 2.',
@@ -527,7 +527,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_lg_1',
-        prompt: 'Which ordered pair represents a point on the graph of  5y - 2x = 5 ?',
+        prompt: 'Which ordered pair represents a point on the graph of:\n5y - 2x = 5',
         choices: ['(1, 0)', '(2, 1)', '(5, 3)', '(3, 5)'],
         correctIndex: 2,
         explanation: 'Plug in (5, 3): 5(3) - 2(5) = 15 - 10 = 5, which is true.',
@@ -545,7 +545,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_lg_3',
-        prompt: 'What is the x-intercept of the graph of  f(x) = 2x + 9 ?',
+        prompt: 'What is the x-intercept of the graph of:\nf(x) = 2x + 9',
         choices: ['-9', '-4.5 (or -9/2)', '2', '9'],
         correctIndex: 1,
         explanation: 'Set f(x) = 0: 2x + 9 = 0 gives 2x = -9, so x = -9/2 (-4.5).',
@@ -563,7 +563,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_lg_5',
-        prompt: 'Which ordered pair lies on the graph of  f(x) = 2x - 1 ?',
+        prompt: 'Which ordered pair lies on the graph of:\nf(x) = 2x - 1',
         choices: ['(0, 1)', '(1, 2)', '(3, 5)', '(5, 2)'],
         correctIndex: 2,
         explanation: 'Evaluate f(3) = 2(3) - 1 = 5, so (3, 5) is on the line.',
@@ -797,7 +797,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_ss_3',
-        prompt: 'Two functions are given:\nf(x) = 3x + 4  and  g(x) = 7x - 2\nWhat value of x makes f(x) = g(x) true?',
+        prompt: 'Two functions are given:\nf(x) = 3x + 4\ng(x) = 7x - 2\nWhat value of x makes f(x) = g(x) true?',
         choices: ['x = 0.5 (or 1/2)', 'x = 1.5 (or 3/2)', 'x = 2', 'x = -1.5 (or -3/2)'],
         correctIndex: 1,
         explanation: 'Set 3x + 4 = 7x - 2 -> 6 = 4x -> x = 6/4 = 3/2 (1.5).',
@@ -806,7 +806,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_ss_4',
-        prompt: 'System 1: y + 2x = 3 and 3y + 3x = -4.5\nSystem 2: -3y - 6x = -9 and 3y + 3x = -4.5\nHow do the solutions compare?',
+        prompt: 'Compare these two systems of equations:\nSystem 1:  y + 2x = 3   and   3y + 3x = -4.5\nSystem 2:  -3y - 6x = -9   and   3y + 3x = -4.5\nHow do the solutions compare?',
         choices: [
           'System 1 has no solution while System 2 has one',
           'They have the same solution because -3y - 6x = -9 is -3 times y + 2x = 3',
@@ -965,7 +965,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_si_9',
-        prompt: 'Apples cost $3 (x) and bananas cost $2 (y). You can spend no more than $18 and must buy at least 5 fruits total (3x + 2y ≤ 18, x + y ≥ 5). Which order works?',
+        prompt: 'Apples cost $3 (x) and bananas cost $2 (y). You can spend no more than $18 and must buy at least 5 fruits total:\n3x + 2y ≤ 18\nx + y ≥ 5\nWhich order works?',
         choices: ['(5, 2)', '(1, 3)', '(3, 3)', '(4, 4)'],
         correctIndex: 2,
         explanation: '(3, 3) gives 3 + 3 = 6 ≥ 5 fruits and costs 3(3) + 2(3) = $15 ≤ $18.',
@@ -974,7 +974,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_si_10',
-        prompt: 'How should the boundary line and shading be drawn for the inequality  y > 2x - 3 ?',
+        prompt: 'How should the boundary line and shading be drawn for:\ny > 2x - 3',
         choices: [
           'Solid line, shaded above',
           'Dashed line, shaded above',
@@ -1215,7 +1215,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_qf_6',
-        prompt: 'The function f(x) = x² + 2x - 24 is equivalent to f(x) = (x + a)(x + b). What are the values of a and b?',
+        prompt: 'The function:\nf(x) = x² + 2x - 24\nis equivalent to f(x) = (x + a)(x + b).\nWhat are the values of a and b?',
         choices: ['a = 6, b = -4', 'a = -6, b = 4', 'a = 8, b = -3', 'a = 12, b = -2'],
         correctIndex: 0,
         explanation: '6 · (-4) = -24 and 6 + (-4) = +2, so (x + 6)(x - 4) gives a = 6 and b = -4.',
@@ -1224,7 +1224,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_qf_7',
-        prompt: 'What are the zeros of  f(x) = 3x² - 12x ?',
+        prompt: 'What are the zeros of:\nf(x) = 3x² - 12x',
         choices: ['x = 0 and x = 4', 'x = 0 and x = -4', 'x = 3 and x = 4', 'x = -2 and x = 2'],
         correctIndex: 0,
         explanation: 'Factor out the GCF 3x: 3x(x - 4) = 0, so x = 0 and x = 4.',
@@ -1412,7 +1412,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_ex_4',
-        prompt: 'Equipment worth $15,000 decreases in value by 12.5% per year. Alfred wrote  15,000(0.125)^t < 8,000, which is wrong. How should he fix it?',
+        prompt: 'Equipment worth $15,000 decreases in value by 12.5% per year. Alfred wrote an inequality that is wrong:\n15,000(0.125)^t < 8,000\nHow should he fix it?',
         choices: [
           'Replace 0.125 with 12.5',
           'Replace 0.125 with 0.875',
@@ -1728,7 +1728,7 @@ export const OST_PLAYBOOK_TOPICS: ReviewTopic[] = [
       },
       {
         id: 'ost_dt_9',
-        prompt: 'A line of best fit relating study hours (x) to quiz score (y) is y = 6.5x + 52. What score is predicted for 4 study hours?',
+        prompt: 'A line of best fit relating study hours (x) to quiz score (y) is:\ny = 6.5x + 52\nWhat score is predicted for 4 study hours?',
         choices: ['58.5', '74', '78', '82'],
         correctIndex: 2,
         explanation: 'Substitute x = 4: 6.5(4) + 52 = 26 + 52 = 78.',

@@ -826,7 +826,7 @@ REQUIREMENTS:
 1. Generate exactly ${targetCount} distinct, non-duplicate multiple-choice Algebra questions covering the topic and standards above.
 2. STRICT RATIONAL ANSWERS ONLY: Every numeric answer MUST be a clean rational number (an integer, an exact simple fraction like 3/4 or -1/2, or a short exact terminating decimal like 1.5 or 0.75). NEVER generate irrational numbers (such as √2 or π) or non-terminating/messy rounded decimals!
 3. Double-check every single calculation! The choice at correctIndex MUST be mathematically 100% exact, and the other 3 distractors must be plausible common algebra mistakes (sign error, reciprocal, forgot constant, etc.) and NEVER equal to the correct answer.
-4. Keep question prompts clear and readable on a game modal (use clean Unicode math like x², √, ≤, ≥, ≠, ÷, ·, or clean fractions like 3/4 — NO raw $$ LaTeX syntax).
+4. Keep question prompts clear and readable on a game modal: use clean Unicode math like x², √, ≤, ≥, ≠, ÷, ·, and write fractions cleanly as 3/4, -1/2, or (3x - 1) / 2 (NO raw $$ LaTeX syntax — the game automatically displays typed fractions vertically). Put equations, inequalities, systems, and multi-line steps on their own lines using \n, and separate paired system equations in answer choices with "  and  ".
 5. Each question must be solvable without needing an external picture unless all coordinates/equations are explicitly stated in the prompt!
 6. Provide a clear 1-sentence explanation showing how to get the answer.
 7. Mix difficulties across easy, medium, and hard.`;

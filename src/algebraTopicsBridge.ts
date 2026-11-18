@@ -760,6 +760,7 @@ function renderTeacherSyncModal(): void {
             <div class="text-xs text-yellow-300">EDITING QUESTIONS: ${escapeHtml(editingTopic.topicTitle)} (${editingTopic.questions.length})</div>
             <button id="btn-ts-close-qedit" class="pixel-btn btn-slate px-2.5 py-1 text-[9px]">DONE EDITING</button>
           </div>
+          <div class="text-[10px] text-slate-300">Tip: Fractions like 1/2 or (3x - 1)/2 automatically display vertically for students, and new lines keep systems cleanly stacked.</div>
           <div class="space-y-2 max-h-[38vh] overflow-y-auto pr-1">
             ${editingTopic.questions.map((q, qIdx) => `
               <div class="border border-slate-700 bg-slate-900 p-2.5 space-y-1.5 text-[11px]">
@@ -767,7 +768,7 @@ function renderTeacherSyncModal(): void {
                   <span class="text-sky-300">Q${qIdx + 1} (${escapeHtml(q.standardCode || '')})</span>
                   <button data-del-q="${qIdx}" class="pixel-btn btn-red px-2 py-0.5 text-[9px]">DELETE</button>
                 </div>
-                <input data-q-prompt="${qIdx}" value="${escapeHtml(q.prompt)}" class="w-full bg-slate-950 border border-slate-600 px-2 py-1 text-white select-text" style="user-select:text;-webkit-user-select:text;" />
+                <textarea rows="2" data-q-prompt="${qIdx}" class="w-full bg-slate-950 border border-slate-600 px-2 py-1 text-white select-text leading-snug" style="user-select:text;-webkit-user-select:text;">${escapeHtml(q.prompt)}</textarea>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                   ${q.choices.map((c, cIdx) => `
                     <div class="flex items-center gap-1">
@@ -920,7 +921,7 @@ function renderTeacherSyncModal(): void {
         renderTeacherSyncModal();
       });
     });
-    body.querySelectorAll<HTMLInputElement>('[data-q-prompt]').forEach((inp) => {
+    body.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[data-q-prompt]').forEach((inp) => {
       inp.addEventListener('change', () => {
         const qIdx = Number(inp.getAttribute('data-q-prompt'));
         if (editingTopic.questions[qIdx]) editingTopic.questions[qIdx].prompt = inp.value;

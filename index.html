@@ -101,6 +101,47 @@
       animation: pulseBanner 0.7s infinite ease-in-out;
     }
 
+    /* Stacked vertical fractions & clean superscript exponents for Algebra Review */
+    .aq-frac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      line-height: 1.05;
+      margin: 0 0.14em;
+      font-size: 0.86em;
+      font-weight: 700;
+    }
+    .aq-frac-num {
+      display: block;
+      padding: 0 0.24em 0.12em;
+      border-bottom: 2px solid currentColor;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .aq-frac-den {
+      display: block;
+      padding: 0.12em 0.24em 0;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .aq-frac-sign {
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 0.08em;
+      font-weight: 700;
+    }
+    .aq-sup {
+      font-size: 0.72em;
+      line-height: 0;
+      vertical-align: super;
+      margin-left: 0.04em;
+    }
+    .aq-has-frac {
+      line-height: 2.25 !important;
+    }
+
     /* Scale up typography exclusively inside Franchise Dynasty Hub (#screen-hub) */
     #screen-hub .text-\[8px\]  { font-size: 0.92rem !important; line-height: 1.38 !important; }
     #screen-hub .text-\[9px\]  { font-size: 1.0rem !important; line-height: 1.4 !important; }
@@ -704,27 +745,27 @@
   </div>
 
   <!-- In-Game Algebra Question Modal (First Downs, Turnovers, Scoring Drives, End of Quarters) -->
-  <div id="overlay-algebra-question" class="hidden fixed inset-0 bg-black/85 flex items-center justify-center p-3 sm:p-6 z-50">
-    <div class="pixel-box-gold max-w-2xl w-full p-4 sm:p-6 bg-slate-950 space-y-3 sm:space-y-4 max-h-[92dvh] overflow-y-auto">
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-700 pb-2.5">
-        <div>
+  <div id="overlay-algebra-question" class="hidden fixed inset-0 bg-black/85 flex items-center justify-center p-2.5 sm:p-6 z-50">
+    <div class="pixel-box-gold max-w-3xl w-full min-w-0 p-4 sm:p-6 bg-slate-950 space-y-3 sm:space-y-4 max-h-[92dvh] overflow-y-auto" style="-webkit-overflow-scrolling:touch; touch-action:pan-y;">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-700 pb-2.5 min-w-0">
+        <div class="min-w-0 flex-1">
           <span id="aq-trigger-badge" class="inline-block px-2.5 py-1 bg-yellow-400 text-black text-[10px] sm:text-xs font-bold">FIRST DOWN!</span>
-          <div id="aq-topic-label" class="text-[10px] sm:text-xs text-sky-300 mt-1">TOPIC: MIXED REVIEW</div>
+          <div id="aq-topic-label" class="text-[10px] sm:text-xs text-sky-300 mt-1 break-words">TOPIC: MIXED REVIEW</div>
         </div>
-        <button id="btn-aq-switch-topic" class="pixel-btn btn-blue px-2.5 py-1.5 text-[9px] sm:text-[10px]">SWITCH TOPIC</button>
+        <button id="btn-aq-switch-topic" class="pixel-btn btn-blue px-2.5 py-1.5 text-[9px] sm:text-[10px] shrink-0">SWITCH TOPIC</button>
       </div>
 
-      <div id="aq-subline" class="text-xs sm:text-sm text-emerald-300">ANSWER CORRECTLY FOR A BONUS!</div>
+      <div id="aq-subline" class="text-xs sm:text-sm text-emerald-300 break-words">ANSWER CORRECTLY FOR A BONUS!</div>
 
-      <div class="pixel-box bg-slate-900 p-3.5 sm:p-5 text-sm sm:text-lg text-white leading-relaxed">
-        <div id="aq-prompt" class="select-text whitespace-pre-line" style="user-select:text;-webkit-user-select:text;">Solve for x...</div>
+      <div class="pixel-box bg-slate-900 p-3.5 sm:p-5 text-sm sm:text-lg text-white leading-relaxed min-w-0">
+        <div id="aq-prompt" class="select-text space-y-2 min-w-0 break-normal" style="user-select:text;-webkit-user-select:text;">Solve for x...</div>
       </div>
 
-      <div id="aq-choices" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+      <div id="aq-choices" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 min-w-0"></div>
 
-      <div id="aq-feedback" class="hidden pixel-box bg-slate-900 p-3 sm:p-4 space-y-2 text-xs sm:text-sm">
+      <div id="aq-feedback" class="hidden pixel-box bg-slate-900 p-3.5 sm:p-4 space-y-2 text-xs sm:text-sm min-w-0">
         <div id="aq-feedback-title" class="text-sm sm:text-base font-bold"></div>
-        <div id="aq-explanation" class="text-slate-200 leading-relaxed"></div>
+        <div id="aq-explanation" class="text-slate-200 leading-relaxed min-w-0 break-normal"></div>
         <div id="aq-reward-note" class="text-yellow-300"></div>
         <button id="btn-aq-continue" class="pixel-btn btn-green w-full py-2.5 sm:py-3 text-xs sm:text-sm mt-1">CONTINUE [SPACE / ENTER]</button>
       </div>
@@ -2357,6 +2398,208 @@
         .replace(/"/g, '&quot;');
     }
 
+    function makeVerticalFracHtml(num, den, leadingSign = '') {
+      const signHtml = leadingSign ? `<span class="aq-frac-sign">${escapeHtmlGame(leadingSign)}</span>` : '';
+      return `${signHtml}<span class="aq-frac"><span class="aq-frac-num">${escapeHtmlGame(String(num).trim())}</span><span class="aq-frac-den">${escapeHtmlGame(String(den).trim())}</span></span>`;
+    }
+
+    function formatMathTokensHtml(rawText) {
+      let tokens = [{ type: 'text', value: String(rawText || '') }];
+
+      const applyRule = (re, fn) => {
+        const next = [];
+        for (const tok of tokens) {
+          if (tok.type !== 'text') {
+            next.push(tok);
+            continue;
+          }
+          const s = tok.value;
+          re.lastIndex = 0;
+          let last = 0;
+          let m;
+          while ((m = re.exec(s)) !== null) {
+            const rep = fn(m, s);
+            if (rep === null) continue;
+            if (m.index > last) next.push({ type: 'text', value: s.slice(last, m.index) });
+            next.push({ type: 'html', value: rep });
+            last = m.index + m[0].length;
+          }
+          if (last < s.length) next.push({ type: 'text', value: s.slice(last) });
+        }
+        tokens = next;
+      };
+
+      // 1. Exponents like ^(t/3), ^(-2), ^x, ^t (keep exponent compact in <sup>)
+      applyRule(/\^\(([^()\n]{1,24})\)|\^([+-]?[a-zA-Z0-9]{1,8})/g, (m) => {
+        const exp = m[1] !== undefined ? m[1] : m[2];
+        return `<sup class="aq-sup">${escapeHtmlGame(exp)}</sup>`;
+      });
+
+      // 2. Optional LaTeX \frac{a}{b} if pasted in future teacher questions
+      applyRule(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, (m) => makeVerticalFracHtml(m[1], m[2]));
+
+      // 3. Compound (expr)/(expr) fractions e.g. (y2 - y1)/(x2 - x1), (9 - (-3)) / (6 - 2)
+      applyRule(/\(((?:[^()\n/]|\([^()\n/]*\))+)\)\s*\/\s*\(((?:[^()\n/]|\([^()\n/]*\))+)\)/g, (m) => {
+        const num = m[1].trim();
+        const den = m[2].trim();
+        if (/[=<>≤≥;:,]/.test(num + den) || /\b[a-z]{4,}\b/.test(num + den)) return null;
+        return makeVerticalFracHtml(num, den);
+      });
+
+      // 4. Parenthesized compound numerator over simple denominator e.g. (3x - 1) / 2
+      applyRule(/\(((?:[^()\n/]|\([^()\n/]*\))+)\)\s*\/\s*(\d+[a-zA-Z²³⁴]*|[a-zA-Z][²³⁴]?)(?![a-zA-Z0-9.])/g, (m) => {
+        const num = m[1].trim();
+        const den = m[2].trim();
+        if (/[=<>≤≥;:,]/.test(num) || /\b[a-z]{3,}\b/.test(num)) return null;
+        return makeVerticalFracHtml(num, den);
+      });
+
+      // 5. Simple numerator over parenthesized denominator e.g. 3 / (x + 2)
+      applyRule(/(?<![a-zA-Z0-9.$])([+-]?(?:\d+[a-zA-Z]?|[a-zA-Z]))\s*\/\s*\(([^()\n/]+)\)/g, (m) => {
+        const numRaw = m[1].trim();
+        const den = m[2].trim();
+        if (/[=<>≤≥;:,]/.test(den) || /\b[a-z]{3,}\b/.test(den) || !/[+\-]/.test(den)) return null;
+        const sign = numRaw.startsWith('-') ? '-' : '';
+        const num = sign ? numRaw.slice(1) : numRaw;
+        return makeVerticalFracHtml(num, den, sign);
+      });
+
+      // 6. Parenthesized simple fraction e.g. (1/2), (2/3), (x / 2), (-3/2)
+      applyRule(/\(([+-]?(?:\d+(?:\.\d+)?[a-zA-Z]?|[a-zA-Z]))\s*\/\s*(\d+[a-zA-Z²³⁴]*|[a-zA-Z][²³⁴]?)\)/g, (m, fullStr) => {
+        const numRaw = m[1].trim();
+        const den = m[2].trim();
+        const prevChar = m.index > 0 ? fullStr[m.index - 1] : '';
+        const sign = numRaw.startsWith('-') ? '-' : '';
+        const num = sign ? numRaw.slice(1) : numRaw;
+        const frac = makeVerticalFracHtml(num, den, sign);
+        return /[a-zA-Z0-9)]/.test(prevChar) ? `(${frac})` : frac;
+      });
+
+      // 7. Bare numeric or simple algebraic fraction e.g. 1/2, -15/2, 3x/4, t/3, 1/2²
+      applyRule(/(?<![a-zA-Z0-9.$])([+-]?\d+(?:\.\d+)?[a-zA-Z]?|[+-]?[a-zA-Z])\s*\/\s*(\d+[²³⁴]?)(?![a-zA-Z0-9.])/g, (m) => {
+        const numRaw = m[1].trim();
+        const den = m[2].trim();
+        const sign = numRaw.startsWith('-') ? '-' : (numRaw.startsWith('+') ? '+' : '');
+        const num = sign ? numRaw.slice(1) : numRaw;
+        return makeVerticalFracHtml(num, den, sign);
+      });
+
+      return tokens.map(t => (t.type === 'html' ? t.value : escapeHtmlGame(t.value))).join('');
+    }
+
+    function wrapInlineMathHtml(rawText) {
+      const str = String(rawText || '');
+      // Keep equations, inequalities, chained comparisons, and ordered pairs together on one line
+      const term = '(?:[a-zA-Z]\\([a-zA-Z0-9+\\-*/.]+\\)|[+-]?\\$?(?:[\\d,]+(?:\\.\\d+)?|\\([^()\\n]+\\))[a-zA-Z²³⁴^()/0-9.%]*|[+-]?[a-zA-Z][²³⁴^0-9/]*)';
+      const rhsTerm = '(?:[a-zA-Z]\\([a-zA-Z0-9+\\-*/.]+\\)|[+-]?\\$?(?:[\\d,]+(?:\\.\\d+)?|\\([^()\\n]+\\))[a-zA-Z²³⁴^()/0-9.%]*|[+-]?[a-zA-Z][²³⁴^0-9/]*)';
+      const exprChain = `(?:${term})(?:\\s+[+\\-*/·÷]\\s+(?:${term}))*`;
+      const rhsChain = `(?:${rhsTerm})(?:\\s+[+\\-*/·÷]\\s+(?:${rhsTerm}))*`;
+      const opExpr = `(?:${exprChain})(?:\\s*(?:≤|≥|<=|>=|=|<|>)\\s*${rhsChain})+`;
+      const orderedPair = '\\([+-]?\\d+(?:\\.\\d+|\\/\\d+)?,\\s*[+-]?\\d+(?:\\.\\d+|\\/\\d+)?\\)';
+      const mathRe = new RegExp(`(?:${opExpr}|${orderedPair})`, 'g');
+
+      let html = '';
+      let lastIdx = 0;
+      let m;
+      while ((m = mathRe.exec(str)) !== null) {
+        if (m.index > lastIdx) {
+          html += formatMathTokensHtml(str.slice(lastIdx, m.index));
+        }
+        let token = m[0];
+        let trailing = '';
+        const trailMatch = token.match(/([.,;?!]+)$/);
+        if (trailMatch) {
+          trailing = trailMatch[1];
+          token = token.slice(0, -trailing.length);
+        }
+        const trimmed = token.trim();
+        if (trimmed.length > 0 && trimmed.length <= 38) {
+          html += `<span class="inline-block whitespace-nowrap">${formatMathTokensHtml(trimmed)}</span>${escapeHtmlGame(trailing)}`;
+        } else {
+          html += formatMathTokensHtml(m[0]);
+        }
+        lastIdx = m.index + m[0].length;
+      }
+      if (lastIdx < str.length) {
+        html += formatMathTokensHtml(str.slice(lastIdx));
+      }
+      return html;
+    }
+
+    function isStandaloneMathLine(line) {
+      const t = String(line || '').trim();
+      if (!t) return false;
+      if (/^(?:Step\s*\d+:|System\s*\d+:|Chicago:|Honolulu:|Mean\s*=|Min\s*=)/i.test(t)) return true;
+      if (/^\{.*\}[.?]?$/.test(t)) return true;
+      // Short/medium standalone equation, inequality, or polynomial expression (no trailing question mark)
+      if (t.length <= 68 && !t.endsWith('?') && (/[=≤≥<>]/.test(t) || /[xytnh][²³⁴^]|\)\(/.test(t) || /^\(?[-+\d(].*[+\-*/]/.test(t))) {
+        const wordCount = (t.match(/\b[a-zA-Z]{3,}\b/g) || []).filter(w => !/^(and|or|Step|System|Mean|Median|Min|Max)$/i.test(w)).length;
+        if (wordCount <= 1) return true;
+      }
+      return false;
+    }
+
+    function formatMathLineHtml(line) {
+      const t = String(line || '').trim();
+      const sysMatch = t.match(/^(System\s*\d+:\s*)(.+?)\s{2,}and\s{2,}(.+)$/i);
+      if (sysMatch) {
+        const leftHtml = formatMathTokensHtml(sysMatch[2].trim());
+        const rightHtml = formatMathTokensHtml(sysMatch[3].trim());
+        const hasFrac = (leftHtml + rightHtml).includes('aq-frac');
+        return `<div class="min-w-0 ${hasFrac ? 'aq-has-frac' : 'leading-snug'}"><span class="text-sky-300 font-bold mr-1.5">${escapeHtmlGame(sysMatch[1].trim())}</span><span class="inline-block whitespace-nowrap">${leftHtml}</span> <span class="text-slate-400 text-xs mx-1">and</span> <span class="inline-block whitespace-nowrap">${rightHtml}</span></div>`;
+      }
+      const inner = wrapInlineMathHtml(t);
+      const hasFrac = inner.includes('aq-frac');
+      return `<div class="min-w-0 ${hasFrac ? 'aq-has-frac' : 'leading-snug'} break-normal">${inner}</div>`;
+    }
+
+    function formatAlgebraPromptHtml(promptText) {
+      const lines = String(promptText || '').split('\n').map(l => l.trim()).filter(Boolean);
+      if (!lines.length) return '';
+      const blocks = [];
+      let i = 0;
+      while (i < lines.length) {
+        if (isStandaloneMathLine(lines[i])) {
+          const mathLines = [];
+          while (i < lines.length && isStandaloneMathLine(lines[i])) {
+            mathLines.push(lines[i]);
+            i += 1;
+          }
+          blocks.push(
+            `<div class="bg-slate-950/90 border-l-4 border-yellow-400 px-3.5 py-2.5 my-1.5 rounded-r space-y-2 text-amber-200 font-bold text-sm sm:text-lg overflow-x-auto">${mathLines.map(formatMathLineHtml).join('')}</div>`
+          );
+        } else {
+          const inner = wrapInlineMathHtml(lines[i]);
+          const hasFrac = inner.includes('aq-frac');
+          blocks.push(`<p class="${hasFrac ? 'aq-has-frac' : 'leading-relaxed'} min-w-0 break-normal">${inner}</p>`);
+          i += 1;
+        }
+      }
+      return blocks.join('');
+    }
+
+    function formatAlgebraChoiceHtml(choiceText) {
+      const str = String(choiceText || '').trim();
+      const renderPart = (part, suffixHtml = '') => {
+        const inner = wrapInlineMathHtml(part);
+        const hasFrac = inner.includes('aq-frac');
+        return `<div class="min-w-0 ${hasFrac ? 'aq-has-frac' : 'leading-snug'} break-normal">${inner}${suffixHtml}</div>`;
+      };
+      if (/\s{2,}and\s{2,}/.test(str)) {
+        const parts = str.split(/\s{2,}and\s{2,}/).map(p => p.trim()).filter(Boolean);
+        return `<div class="flex flex-col gap-1 min-w-0">${parts.map((p, i) => renderPart(p, i < parts.length - 1 ? ' <span class="text-slate-400 text-[11px] ml-1">and</span>' : '')).join('')}</div>`;
+      }
+      if (/\|/.test(str)) {
+        const parts = str.split(/\s*\|\s*/).map(p => p.trim()).filter(Boolean);
+        return `<div class="flex flex-col gap-1 min-w-0">${parts.map(p => renderPart(p)).join('')}</div>`;
+      }
+      if (/;\s+/.test(str)) {
+        const parts = str.split(/;\s+/).map(p => p.trim()).filter(Boolean);
+        return `<div class="flex flex-col gap-1 min-w-0">${parts.map(p => renderPart(p)).join('')}</div>`;
+      }
+      return renderPart(str);
+    }
+
     const REVIEW_TOGGLE_PASSWORD = 'tokenbake';
     let pendingReviewToggleCallback = null;
 
@@ -2609,13 +2852,26 @@
     function renderActiveQuestionChoices() {
       if (!activeQuestionState) return;
       const q = activeQuestionState.question;
-      document.getElementById('aq-prompt').textContent = q.prompt;
+      const promptEl = document.getElementById('aq-prompt');
+      if (promptEl) promptEl.innerHTML = formatAlgebraPromptHtml(q.prompt);
+
       const choicesEl = document.getElementById('aq-choices');
+      const useSingleColumn = (q.choices || []).some(c => {
+        const s = String(c || '');
+        return s.length > 26 || /\s{2,}and\s{2,}|\||;\s+|\n/.test(s);
+      });
+      choicesEl.className = useSingleColumn
+        ? 'grid grid-cols-1 gap-2.5 min-w-0'
+        : 'grid grid-cols-1 sm:grid-cols-2 gap-2.5 min-w-0';
+
       const letters = ['A', 'B', 'C', 'D'];
       choicesEl.innerHTML = q.choices.map((c, idx) => `
-        <button data-aq-idx="${idx}" class="pixel-btn btn-slate text-left p-3 sm:p-3.5 text-xs sm:text-sm normal-case justify-start gap-2.5 leading-snug">
-          <span class="inline-flex items-center justify-center w-6 h-6 bg-yellow-400 text-black font-bold shrink-0">[${idx + 1}]</span>
-          <span class="select-text" style="user-select:text;-webkit-user-select:text;">${letters[idx]}. ${escapeHtmlGame(c)}</span>
+        <button data-aq-idx="${idx}" class="pixel-btn btn-slate w-full min-w-0 items-start text-left p-3 sm:p-3.5 text-sm sm:text-base normal-case justify-start gap-2.5 leading-snug">
+          <span class="inline-flex items-center justify-center w-6 h-6 mt-0.5 bg-yellow-400 text-black text-xs font-bold shrink-0">[${idx + 1}]</span>
+          <span class="select-text flex items-start gap-1.5 min-w-0 flex-1" style="user-select:text;-webkit-user-select:text;">
+            <span class="font-bold text-yellow-300 shrink-0">${letters[idx]}.</span>
+            <span class="min-w-0 flex-1">${formatAlgebraChoiceHtml(c)}</span>
+          </span>
         </button>
       `).join('');
 
@@ -2668,7 +2924,9 @@
       const fbReward = document.getElementById('aq-reward-note');
       fbTitle.textContent = isCorrect ? 'CORRECT! GREAT PLAY!' : 'NOT QUITE — CHECK THE SOLUTION';
       fbTitle.className = `text-sm sm:text-base font-bold ${isCorrect ? 'text-emerald-400' : 'text-rose-400'}`;
-      fbExp.textContent = q.explanation || '';
+      const expHtml = wrapInlineMathHtml(q.explanation || '');
+      fbExp.className = `text-slate-200 ${expHtml.includes('aq-frac') ? 'aq-has-frac' : 'leading-relaxed'} min-w-0 break-normal`;
+      fbExp.innerHTML = expHtml;
       fbReward.textContent = isCorrect
         ? `BONUS EARNED: ${activeQuestionState.bonusDesc}`
         : 'NO PENALTY — PLAY CONTINUES ON CONTINUE.';
