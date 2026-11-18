@@ -772,7 +772,7 @@
     </div>
   </div>
 
-  <!-- Password Lock Modal for Review Mode ON/OFF -->
+  <!-- Password Lock Modal for Review Mode ON/OFF & Lifetime Stats Reset -->
   <div id="overlay-review-password" class="hidden fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-[70]">
     <form id="form-review-password" class="pixel-box-gold max-w-md w-full p-5 sm:p-6 bg-slate-950 space-y-4">
       <div class="flex items-center justify-between gap-2 border-b-2 border-slate-700 pb-2.5">
@@ -790,6 +790,24 @@
         <button id="btn-submit-review-password" type="submit" class="pixel-btn btn-green px-4 py-2 text-xs">UNLOCK &amp; TOGGLE</button>
       </div>
     </form>
+  </div>
+
+  <!-- Lifetime Algebra Review Stats Modal -->
+  <div id="overlay-lifetime-stats" class="hidden fixed inset-0 bg-black/85 flex items-center justify-center p-3 sm:p-6 z-[60]">
+    <div class="pixel-box-gold max-w-3xl w-full max-h-[90dvh] flex flex-col p-4 sm:p-6 bg-slate-950 gap-3 sm:gap-4 min-w-0">
+      <div class="flex items-center justify-between gap-2 border-b-2 border-slate-700 pb-2.5 shrink-0">
+        <div>
+          <div class="text-sm sm:text-lg text-yellow-400 font-bold">LIFETIME ALGEBRA ACCURACY</div>
+          <div class="text-[10px] sm:text-xs text-slate-300">Saved on this browser across Quick Play &amp; Dynasty games</div>
+        </div>
+        <button id="btn-close-lifetime-stats" class="pixel-btn btn-red px-3 py-1.5 text-xs shrink-0">CLOSE</button>
+      </div>
+      <div id="lifetime-stats-body" class="flex-1 min-h-0 overflow-y-auto space-y-3 pr-1" style="-webkit-overflow-scrolling:touch; touch-action:pan-y;"></div>
+      <div class="flex flex-wrap items-center justify-between gap-2 border-t-2 border-slate-800 pt-3 shrink-0">
+        <span class="text-[10px] text-slate-400">Resetting clears all lifetime &amp; topic percentages.</span>
+        <button id="btn-lifetime-reset" class="pixel-btn btn-red px-3 py-2 text-[10px] sm:text-xs" title="Teacher password required">🔒 RESET LIFETIME STATS</button>
+      </div>
+    </div>
   </div>
 
   <!-- =========================================================
@@ -829,15 +847,27 @@
       </div>
 
       <!-- Algebra Review Topic Bar -->
-      <div class="pixel-box p-3 sm:p-4 mb-3 sm:mb-6 w-full max-w-2xl flex flex-col sm:flex-row items-center justify-between gap-2.5 bg-slate-900/90">
-        <div class="text-left min-w-0 flex-1">
-          <div class="text-[10px] sm:text-xs text-sky-300">ACTIVE REVIEW TOPIC</div>
-          <div id="title-topic-label" class="text-xs sm:text-sm text-yellow-300 truncate">MIXED REVIEW (ALL TOPICS)</div>
+      <div class="pixel-box p-3 sm:p-4 mb-3 sm:mb-6 w-full max-w-2xl flex flex-col gap-2.5 bg-slate-900/90">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-2.5 w-full">
+          <div class="text-left min-w-0 flex-1 w-full sm:w-auto">
+            <div class="text-[10px] sm:text-xs text-sky-300">ACTIVE REVIEW TOPIC</div>
+            <div id="title-topic-label" class="text-xs sm:text-sm text-yellow-300 truncate">MIXED REVIEW (ALL TOPICS)</div>
+          </div>
+          <div class="flex flex-wrap items-center justify-center gap-2 shrink-0">
+            <button id="btn-title-pick-topic" class="pixel-btn btn-blue px-3 py-2 text-[10px] sm:text-xs">CHOOSE TOPIC</button>
+            <button id="btn-title-review-toggle" class="pixel-btn btn-green px-3 py-2 text-[10px] sm:text-xs" title="Password required">🔒 REVIEW: ON</button>
+            <button id="btn-teacher-sync" class="pixel-btn btn-slate px-3 py-2 text-[10px] sm:text-xs">TEACHER SYNC</button>
+          </div>
         </div>
-        <div class="flex flex-wrap items-center justify-center gap-2 shrink-0">
-          <button id="btn-title-pick-topic" class="pixel-btn btn-blue px-3 py-2 text-[10px] sm:text-xs">CHOOSE TOPIC</button>
-          <button id="btn-title-review-toggle" class="pixel-btn btn-green px-3 py-2 text-[10px] sm:text-xs" title="Password required">🔒 REVIEW: ON</button>
-          <button id="btn-teacher-sync" class="pixel-btn btn-slate px-3 py-2 text-[10px] sm:text-xs">TEACHER SYNC</button>
+        <div class="border-t border-slate-700/80 pt-2 flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-xs">
+          <div class="text-left min-w-0">
+            <span class="text-slate-400">LIFETIME: </span>
+            <span id="title-lifetime-summary" class="font-bold text-slate-200">✓ 0 • ✗ 0 (0%)</span>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button id="btn-title-lifetime-stats" class="pixel-btn btn-slate px-2.5 py-1 text-[9px] sm:text-[10px]">LIFETIME STATS</button>
+            <button id="btn-title-lifetime-reset" class="pixel-btn btn-red px-2.5 py-1 text-[9px] sm:text-[10px]" title="Teacher password required">🔒 RESET</button>
+          </div>
         </div>
       </div>
 
@@ -966,10 +996,15 @@
         </div>
       </div>
 
-      <!-- Center: Down & Distance + Quarter & Game Clock -->
-      <div id="hud-center-col" class="flex flex-col items-center justify-center text-center">
+      <!-- Center: Down & Distance + Quarter & Game Clock + Live Algebra Review Counter (Off-Field) -->
+      <div id="hud-center-col" class="flex flex-col items-center justify-center text-center min-w-0">
         <div id="hud-down-dist" class="text-yellow-300 text-[10px] sm:text-base font-bold tracking-wide leading-tight">1ST &amp; 10 &bull; OWN 25</div>
         <div id="hud-clock" class="text-emerald-400 text-[10px] sm:text-sm mt-0.5 leading-tight">Q1 &bull; 02:00</div>
+        <div id="hud-review-counter" class="text-[8px] sm:text-[11px] mt-0.5 leading-tight whitespace-nowrap flex items-center justify-center gap-1.5 sm:gap-2">
+          <span class="text-emerald-400">✓ 0</span>
+          <span class="text-rose-400">✗ 0</span>
+          <span class="text-sky-300">(--%)</span>
+        </div>
       </div>
 
       <!-- Right: Mobile Pre-Snap Right Controls / Home Team Live Stat Tracker + Score + Action Buttons -->
@@ -2601,24 +2636,267 @@
     }
 
     const REVIEW_TOGGLE_PASSWORD = 'tokenbake';
-    let pendingReviewToggleCallback = null;
+    const LIFETIME_REVIEW_STORAGE_KEY = 'ad92_lifetime_review_stats_v1';
+    let pendingPasswordAction = null;
+
+    function createEmptyLifetimeReviewStats() {
+      return {
+        correct: 0,
+        incorrect: 0,
+        streak: 0,
+        bestStreak: 0,
+        byTopic: {},
+        updatedAt: 0,
+      };
+    }
+
+    function loadLifetimeReviewStats() {
+      const base = createEmptyLifetimeReviewStats();
+      try {
+        const raw = window.localStorage.getItem(LIFETIME_REVIEW_STORAGE_KEY);
+        if (!raw) return base;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object') return base;
+        base.correct = Math.max(0, Math.trunc(Number(parsed.correct) || 0));
+        base.incorrect = Math.max(0, Math.trunc(Number(parsed.incorrect) || 0));
+        base.streak = Math.max(0, Math.trunc(Number(parsed.streak) || 0));
+        base.bestStreak = Math.max(base.streak, Math.trunc(Number(parsed.bestStreak) || 0));
+        base.updatedAt = Number(parsed.updatedAt) || 0;
+        if (parsed.byTopic && typeof parsed.byTopic === 'object') {
+          Object.entries(parsed.byTopic).forEach(([tid, val]) => {
+            if (!val || typeof val !== 'object') return;
+            const c = Math.max(0, Math.trunc(Number(val.correct) || 0));
+            const inc = Math.max(0, Math.trunc(Number(val.incorrect) || 0));
+            if (c > 0 || inc > 0) {
+              base.byTopic[tid] = {
+                topicTitle: String(val.topicTitle || tid),
+                correct: c,
+                incorrect: inc,
+              };
+            }
+          });
+        }
+      } catch {}
+      return base;
+    }
+
+    let lifetimeReviewStats = loadLifetimeReviewStats();
+
+    function saveLifetimeReviewStats() {
+      try {
+        window.localStorage.setItem(LIFETIME_REVIEW_STORAGE_KEY, JSON.stringify(lifetimeReviewStats));
+      } catch {}
+    }
+
+    function getLifetimeTotals() {
+      const correct = lifetimeReviewStats.correct || 0;
+      const incorrect = lifetimeReviewStats.incorrect || 0;
+      const total = correct + incorrect;
+      const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+      return {
+        correct,
+        incorrect,
+        total,
+        pct,
+        streak: lifetimeReviewStats.streak || 0,
+        bestStreak: lifetimeReviewStats.bestStreak || 0,
+      };
+    }
+
+    function recordLifetimeReviewAnswer(q, isCorrect) {
+      if (isCorrect) {
+        lifetimeReviewStats.correct += 1;
+        lifetimeReviewStats.streak += 1;
+        lifetimeReviewStats.bestStreak = Math.max(lifetimeReviewStats.bestStreak, lifetimeReviewStats.streak);
+      } else {
+        lifetimeReviewStats.incorrect += 1;
+        lifetimeReviewStats.streak = 0;
+      }
+      const tid = q && q.topicId ? String(q.topicId) : '';
+      if (tid) {
+        if (!lifetimeReviewStats.byTopic[tid]) {
+          lifetimeReviewStats.byTopic[tid] = {
+            topicTitle: String(q.topicTitle || tid),
+            correct: 0,
+            incorrect: 0,
+          };
+        } else if (q.topicTitle) {
+          lifetimeReviewStats.byTopic[tid].topicTitle = String(q.topicTitle);
+        }
+        if (isCorrect) lifetimeReviewStats.byTopic[tid].correct += 1;
+        else lifetimeReviewStats.byTopic[tid].incorrect += 1;
+      }
+      lifetimeReviewStats.updatedAt = Date.now();
+      saveLifetimeReviewStats();
+      updateLifetimeStatsUI();
+    }
+
+    function resetLifetimeReviewStats() {
+      lifetimeReviewStats = createEmptyLifetimeReviewStats();
+      saveLifetimeReviewStats();
+      updateLifetimeStatsUI();
+    }
+
+    function formatLifetimeSummaryHtml(includeStreak = false) {
+      const t = getLifetimeTotals();
+      const pctStr = t.total > 0 ? `${t.pct}%` : '--%';
+      return `<span class="text-emerald-400">✓ ${t.correct}</span> <span class="text-slate-500">&bull;</span> <span class="text-rose-400">✗ ${t.incorrect}</span> <span class="text-sky-300">(${pctStr})</span>${includeStreak ? ` <span class="text-slate-500">&bull;</span> <span class="text-amber-300">BEST STREAK: ${t.bestStreak}</span>` : ''}`;
+    }
+
+    function updateHudReviewCounter() {
+      const el = document.getElementById('hud-review-counter');
+      if (!el) return;
+      const rev = (match && match.stats && match.stats.review)
+        ? match.stats.review
+        : { asked: 0, correct: 0, streak: 0, bestStreak: 0 };
+      const correct = rev.correct || 0;
+      const asked = rev.asked || 0;
+      const incorrect = Math.max(0, asked - correct);
+      const pctStr = asked > 0 ? `${Math.round((correct / asked) * 100)}%` : '--%';
+      if (!algebraReviewEnabled && asked === 0) {
+        el.innerHTML = `<span class="text-slate-400">REVIEW OFF</span>`;
+        return;
+      }
+      el.innerHTML = `
+        <span class="text-slate-400 hidden lg:inline">Q:</span>
+        <span class="text-emerald-400 font-bold" title="Correct this game">✓ ${correct}</span>
+        <span class="text-rose-400 font-bold" title="Incorrect this game">✗ ${incorrect}</span>
+        <span class="text-sky-300" title="Accuracy this game">(${pctStr})</span>
+      `;
+    }
+
+    function renderLifetimeStatsModalBody() {
+      const body = document.getElementById('lifetime-stats-body');
+      if (!body) return;
+      const t = getLifetimeTotals();
+      const pctText = t.total > 0 ? `${t.pct}%` : '--%';
+      const allTopics = getAllReviewTopics();
+      const seenIds = new Set(allTopics.map(tp => tp.topicId));
+      const extraSaved = Object.entries(lifetimeReviewStats.byTopic || {})
+        .filter(([tid]) => !seenIds.has(tid))
+        .map(([tid, info]) => ({ topicId: tid, topicTitle: info.topicTitle || tid, unitName: 'SAVED TOPICS' }));
+      const combinedTopics = [...allTopics, ...extraSaved];
+
+      body.innerHTML = `
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <div class="pixel-box bg-slate-900 p-3 text-center">
+            <div class="text-[9px] text-slate-400">CORRECT</div>
+            <div class="text-lg sm:text-xl text-emerald-400 font-bold mt-1">✓ ${t.correct}</div>
+          </div>
+          <div class="pixel-box bg-slate-900 p-3 text-center">
+            <div class="text-[9px] text-slate-400">INCORRECT</div>
+            <div class="text-lg sm:text-xl text-rose-400 font-bold mt-1">✗ ${t.incorrect}</div>
+          </div>
+          <div class="pixel-box bg-slate-900 p-3 text-center">
+            <div class="text-[9px] text-slate-400">LIFETIME %</div>
+            <div class="text-lg sm:text-xl text-sky-300 font-bold mt-1">${pctText}</div>
+          </div>
+          <div class="pixel-box bg-slate-900 p-3 text-center">
+            <div class="text-[9px] text-slate-400">BEST STREAK</div>
+            <div class="text-lg sm:text-xl text-amber-300 font-bold mt-1">${t.bestStreak}</div>
+          </div>
+        </div>
+
+        <div class="pixel-box bg-slate-900 p-3 sm:p-4 space-y-2.5">
+          <div class="flex items-center justify-between gap-2 border-b border-slate-700 pb-1.5">
+            <span class="text-xs sm:text-sm text-yellow-300 font-bold">ACCURACY BY TOPIC</span>
+            <span class="text-[10px] text-slate-400">${t.total} TOTAL ANSWERED</span>
+          </div>
+          <div class="space-y-2">
+            ${combinedTopics.map(tp => {
+              const rec = lifetimeReviewStats.byTopic[tp.topicId] || { correct: 0, incorrect: 0 };
+              const tot = (rec.correct || 0) + (rec.incorrect || 0);
+              const pct = tot > 0 ? Math.round((rec.correct / tot) * 100) : null;
+              return `
+                <div class="bg-slate-950 border border-slate-800 px-3 py-2 space-y-1">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span class="text-[10px] sm:text-xs text-white font-bold">${escapeHtmlGame(tp.topicTitle)}</span>
+                    <span class="text-[10px] sm:text-xs whitespace-nowrap">
+                      ${tot > 0
+                        ? `<span class="text-emerald-400">✓ ${rec.correct}</span> <span class="text-slate-500">&bull;</span> <span class="text-rose-400">✗ ${rec.incorrect}</span> <span class="text-sky-300 font-bold">(${pct}%)</span>`
+                        : '<span class="text-slate-500">NO ATTEMPTS YET</span>'}
+                    </span>
+                  </div>
+                  <div class="w-full h-1.5 bg-slate-800 overflow-hidden">
+                    <div class="h-full ${pct === null ? 'bg-slate-700' : (pct >= 75 ? 'bg-emerald-400' : (pct >= 50 ? 'bg-amber-400' : 'bg-rose-400'))}" style="width: ${pct === null ? 0 : pct}%"></div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function openLifetimeStatsModal() {
+      const modal = document.getElementById('overlay-lifetime-stats');
+      if (!modal) return;
+      renderLifetimeStatsModalBody();
+      modal.classList.remove('hidden');
+    }
+
+    function closeLifetimeStatsModal() {
+      const modal = document.getElementById('overlay-lifetime-stats');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function updateLifetimeStatsUI() {
+      const titleEl = document.getElementById('title-lifetime-summary');
+      if (titleEl) titleEl.innerHTML = formatLifetimeSummaryHtml(true);
+
+      const hubEl = document.getElementById('hub-lifetime-summary');
+      if (hubEl) hubEl.innerHTML = formatLifetimeSummaryHtml(true);
+
+      const pickerEl = document.getElementById('tp-lifetime-summary');
+      if (pickerEl) pickerEl.innerHTML = formatLifetimeSummaryHtml(true);
+
+      updateHudReviewCounter();
+
+      const statsModal = document.getElementById('overlay-lifetime-stats');
+      if (statsModal && !statsModal.classList.contains('hidden')) {
+        renderLifetimeStatsModalBody();
+      }
+      const pickerModal = document.getElementById('overlay-topic-picker');
+      if (pickerModal && !pickerModal.classList.contains('hidden')) {
+        renderTopicPickerBody();
+      }
+    }
 
     function setAlgebraReviewEnabled(enabled) {
       algebraReviewEnabled = Boolean(enabled);
       try { window.localStorage.setItem('ad92_review_enabled', algebraReviewEnabled ? 'true' : 'false'); } catch {}
       updateTopicLabelsUI();
+      updateHudReviewCounter();
     }
 
-    function openReviewPasswordModal(onSuccess) {
+    function openReviewPasswordModal(optionsOrCb) {
       const modal = document.getElementById('overlay-review-password');
       const desc = document.getElementById('review-password-desc');
+      const submitBtn = document.getElementById('btn-submit-review-password');
       const inp = document.getElementById('inp-review-password');
       const errEl = document.getElementById('review-password-error');
       if (!modal || !inp) return;
-      pendingReviewToggleCallback = typeof onSuccess === 'function' ? onSuccess : null;
+
       const targetState = algebraReviewEnabled ? 'OFF' : 'ON';
-      if (desc) {
-        desc.textContent = `Enter the teacher password to switch Algebra Review Mode ${targetState}.`;
+      if (typeof optionsOrCb === 'object' && optionsOrCb !== null) {
+        pendingPasswordAction = {
+          onUnlock: typeof optionsOrCb.onUnlock === 'function' ? optionsOrCb.onUnlock : null,
+        };
+        if (desc) desc.textContent = optionsOrCb.description || `Enter the teacher password to continue.`;
+        if (submitBtn) submitBtn.textContent = optionsOrCb.submitLabel || 'UNLOCK';
+      } else {
+        const legacyCb = typeof optionsOrCb === 'function' ? optionsOrCb : null;
+        pendingPasswordAction = {
+          onUnlock: () => {
+            setAlgebraReviewEnabled(!algebraReviewEnabled);
+            showToast(`ALGEBRA REVIEW MODE: ${algebraReviewEnabled ? 'ON' : 'OFF'}`);
+            if (legacyCb) legacyCb();
+          },
+        };
+        if (desc) {
+          desc.textContent = `Enter the teacher password to switch Algebra Review Mode ${targetState}.`;
+        }
+        if (submitBtn) submitBtn.textContent = 'UNLOCK & TOGGLE';
       }
       if (errEl) errEl.classList.add('hidden');
       inp.value = '';
@@ -2633,11 +2911,23 @@
       if (modal) modal.classList.add('hidden');
       if (inp) inp.value = '';
       if (errEl) errEl.classList.add('hidden');
-      pendingReviewToggleCallback = null;
+      pendingPasswordAction = null;
     }
 
     function requestToggleAlgebraReview(onSuccess) {
       openReviewPasswordModal(onSuccess);
+    }
+
+    function requestResetLifetimeReviewStats(onSuccess) {
+      openReviewPasswordModal({
+        description: 'Enter the teacher password to reset all saved Lifetime Algebra Stats (Correct, Incorrect, & Topic Accuracy).',
+        submitLabel: 'UNLOCK & RESET',
+        onUnlock: () => {
+          resetLifetimeReviewStats();
+          showToast('LIFETIME ALGEBRA STATS RESET');
+          if (typeof onSuccess === 'function') onSuccess();
+        },
+      });
     }
 
     function setSelectedTopicId(topicId) {
@@ -2721,6 +3011,17 @@
           </button>
         </div>
 
+        <div class="pixel-box bg-slate-900 p-3 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <div class="text-[10px] text-sky-300">LIFETIME STUDENT ACCURACY</div>
+            <div id="tp-lifetime-summary" class="text-xs font-bold mt-0.5">${formatLifetimeSummaryHtml(true)}</div>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button id="btn-tp-view-lifetime" class="pixel-btn btn-slate px-2.5 py-1.5 text-[9px] sm:text-[10px]">FULL STATS</button>
+            <button id="btn-tp-reset-lifetime" class="pixel-btn btn-red px-2.5 py-1.5 text-[9px] sm:text-[10px]" title="Teacher password required">🔒 RESET</button>
+          </div>
+        </div>
+
         <button data-pick-topic="MIXED" class="w-full text-left pixel-box ${selectedTopicId === 'MIXED' ? 'pixel-box-gold bg-yellow-950/30' : 'bg-slate-900 hover:bg-slate-800'} p-3 sm:p-4 transition">
           <div class="flex items-center justify-between gap-2">
             <span class="text-xs sm:text-sm text-yellow-300">MIXED REVIEW (ALL PUBLISHED TOPICS)</span>
@@ -2746,6 +3047,9 @@
                 ${unitTopics.map(t => {
                   const isActive = selectedTopicId === t.topicId;
                   const qCount = (t.questions && t.questions.length) || 0;
+                  const tStats = lifetimeReviewStats.byTopic[t.topicId];
+                  const tTotal = tStats ? ((tStats.correct || 0) + (tStats.incorrect || 0)) : 0;
+                  const tPct = tTotal > 0 ? Math.round((tStats.correct / tTotal) * 100) : 0;
                   return `
                     <button data-pick-topic="${escapeHtmlGame(t.topicId)}" class="text-left pixel-box ${isActive ? 'pixel-box-gold bg-yellow-950/30' : 'bg-slate-900 hover:bg-slate-800'} p-3 flex flex-col justify-between gap-1.5">
                       <div class="flex items-start justify-between gap-2">
@@ -2753,7 +3057,10 @@
                         <span class="text-[9px] px-1.5 py-0.5 bg-slate-800 text-emerald-300 border border-slate-700 shrink-0">${qCount} Qs</span>
                       </div>
                       <div class="text-[10px] text-slate-300 leading-snug">${escapeHtmlGame(t.studentSummary || '')}</div>
-                      ${t.isStarter ? '<div class="text-[9px] text-amber-300">OST PLAYBOOK BANK</div>' : '<div class="text-[9px] text-emerald-400">TEACHER CURRICULUM</div>'}
+                      <div class="flex flex-wrap items-center justify-between gap-1 pt-0.5">
+                        ${t.isStarter ? '<span class="text-[9px] text-amber-300">OST PLAYBOOK BANK</span>' : '<span class="text-[9px] text-emerald-400">TEACHER CURRICULUM</span>'}
+                        ${tTotal > 0 ? `<span class="text-[9px] font-bold"><span class="text-emerald-400">✓ ${tStats.correct}</span> <span class="text-rose-400">✗ ${tStats.incorrect}</span> <span class="text-sky-300">(${tPct}%)</span></span>` : ''}
+                      </div>
                     </button>
                   `;
                 }).join('')}
@@ -2766,6 +3073,21 @@
       document.getElementById('btn-tp-toggle-review')?.addEventListener('click', () => {
         sfx.playClick();
         requestToggleAlgebraReview(() => {
+          renderTopicPickerBody();
+          if (!document.getElementById('screen-hub')?.classList.contains('hidden') && career && currentHubTab === 'office') {
+            openHub('office');
+          }
+        });
+      });
+
+      document.getElementById('btn-tp-view-lifetime')?.addEventListener('click', () => {
+        sfx.playClick();
+        openLifetimeStatsModal();
+      });
+
+      document.getElementById('btn-tp-reset-lifetime')?.addEventListener('click', () => {
+        sfx.playClick();
+        requestResetLifetimeReviewStats(() => {
           renderTopicPickerBody();
           if (!document.getElementById('screen-hub')?.classList.contains('hidden') && career && currentHubTab === 'office') {
             openHub('office');
@@ -2834,7 +3156,7 @@
       topics.forEach(t => {
         (t.questions || []).forEach(q => {
           if (q && q.prompt && Array.isArray(q.choices) && q.choices.length === 4) {
-            pool.push({ ...q, topicTitle: t.topicTitle });
+            pool.push({ ...q, topicId: t.topicId, topicTitle: t.topicTitle });
           }
         });
       });
@@ -2901,6 +3223,7 @@
           match.stats.review.streak = 0;
         }
       }
+      recordLifetimeReviewAnswer(q, isCorrect);
 
       if (isCorrect) sfx.playCatch();
       else sfx.playTurnover();
@@ -5646,14 +5969,26 @@ function ensureCareerSeasonIntegrity() {
             </div>
 
             <!-- Dynasty Algebra Review Topic Bar -->
-            <div class="pixel-box p-3 bg-slate-900 flex flex-wrap items-center justify-between gap-3">
-              <div class="min-w-0 flex-1">
-                <div class="text-[9px] sm:text-[10px] text-sky-300">ALGEBRA REVIEW TOPIC</div>
-                <div id="hub-topic-label" class="text-[10px] sm:text-xs text-yellow-300 truncate">${getSelectedTopicDisplayName()}</div>
+            <div class="pixel-box p-3 bg-slate-900 space-y-2">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                  <div class="text-[9px] sm:text-[10px] text-sky-300">ALGEBRA REVIEW TOPIC</div>
+                  <div id="hub-topic-label" class="text-[10px] sm:text-xs text-yellow-300 truncate">${getSelectedTopicDisplayName()}</div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <button id="btn-hub-change-topic" class="pixel-btn btn-blue px-3 py-1.5 text-[10px]">CHANGE TOPIC</button>
+                  <button id="btn-hub-review-toggle" class="pixel-btn ${algebraReviewEnabled ? 'btn-green' : 'btn-slate'} px-3 py-1.5 text-[10px]" title="Password required">🔒 REVIEW: ${algebraReviewEnabled ? 'ON' : 'OFF'}</button>
+                </div>
               </div>
-              <div class="flex items-center gap-2 shrink-0">
-                <button id="btn-hub-change-topic" class="pixel-btn btn-blue px-3 py-1.5 text-[10px]">CHANGE TOPIC</button>
-                <button id="btn-hub-review-toggle" class="pixel-btn ${algebraReviewEnabled ? 'btn-green' : 'btn-slate'} px-3 py-1.5 text-[10px]" title="Password required">🔒 REVIEW: ${algebraReviewEnabled ? 'ON' : 'OFF'}</button>
+              <div class="border-t border-slate-800 pt-2 flex flex-wrap items-center justify-between gap-2 text-[9px] sm:text-[10px]">
+                <div>
+                  <span class="text-slate-400">LIFETIME: </span>
+                  <span id="hub-lifetime-summary" class="font-bold">${formatLifetimeSummaryHtml(true)}</span>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button id="btn-hub-lifetime-stats" class="pixel-btn btn-slate px-2.5 py-1 text-[9px]">LIFETIME STATS</button>
+                  <button id="btn-hub-lifetime-reset" class="pixel-btn btn-red px-2.5 py-1 text-[9px]" title="Teacher password required">🔒 RESET</button>
+                </div>
               </div>
             </div>
 
@@ -5744,6 +6079,22 @@ function ensureCareerSeasonIntegrity() {
         hubRevToggleBtn.addEventListener('click', () => {
           sfx.playClick();
           requestToggleAlgebraReview(() => {
+            openHub('office');
+          });
+        });
+      }
+      const hubLifeStatsBtn = document.getElementById('btn-hub-lifetime-stats');
+      if (hubLifeStatsBtn) {
+        hubLifeStatsBtn.addEventListener('click', () => {
+          sfx.playClick();
+          openLifetimeStatsModal();
+        });
+      }
+      const hubLifeResetBtn = document.getElementById('btn-hub-lifetime-reset');
+      if (hubLifeResetBtn) {
+        hubLifeResetBtn.addEventListener('click', () => {
+          sfx.playClick();
+          requestResetLifetimeReviewStats(() => {
             openHub('office');
           });
         });
@@ -6061,7 +6412,8 @@ function ensureCareerSeasonIntegrity() {
           <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"><span class="shrink-0">RUSHING</span><span class="text-amber-300 ml-auto text-right">${uName}: ${uRushAtt} ATT, ${uRushYds} YDS &bull; ${cName}: ${cRushAtt} ATT, ${cRushYds} YDS</span></div>
           <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"><span class="shrink-0">TOUCHDOWNS</span><span class="text-yellow-300 ml-auto text-right">${uName}: ${uTds} &bull; ${cName}: ${cTds}</span></div>
           <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"><span class="shrink-0">SACKS / TURNOVERS</span><span class="text-rose-300 ml-auto text-right">${uName}: ${uSacks} SCK, ${uTurnovers} TO &bull; ${cName}: ${cSacks} SCK, ${cTurnovers} TO</span></div>
-          <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"><span class="shrink-0">ALGEBRA REVIEW</span><span class="text-sky-300 ml-auto text-right">${s.review ? `${s.review.correct}/${s.review.asked} CORRECT (${s.review.asked ? Math.round((s.review.correct / s.review.asked) * 100) : 0}%) • STREAK: ${s.review.bestStreak}` : '0/0'}</span></div>
+          <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"><span class="shrink-0">THIS GAME ALGEBRA</span><span class="text-sky-300 ml-auto text-right">${s.review ? `<span class="text-emerald-400">✓ ${s.review.correct}</span> &bull; <span class="text-rose-400">✗ ${Math.max(0, s.review.asked - s.review.correct)}</span> (${s.review.asked ? Math.round((s.review.correct / s.review.asked) * 100) : 0}%) &bull; STREAK: ${s.review.bestStreak}` : '✓ 0 • ✗ 0 (--%)'}</span></div>
+          <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"><span class="shrink-0">LIFETIME ALGEBRA</span><span class="ml-auto text-right">${formatLifetimeSummaryHtml(true)}</span></div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 min-w-0">
@@ -6242,6 +6594,7 @@ function ensureCareerSeasonIntegrity() {
         `Q${match.quarter} • ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
       if (typeof updateTopicLabelsUI === 'function') updateTopicLabelsUI();
+      updateHudReviewCounter();
       updateLiveHudStatTrackers();
     }
 
@@ -7820,6 +8173,7 @@ function ensureCareerSeasonIntegrity() {
 
       const s = match.stats;
       const rev = s.review || { asked: 0, correct: 0, bestStreak: 0 };
+      const revWrong = Math.max(0, (rev.asked || 0) - (rev.correct || 0));
       const revPct = rev.asked > 0 ? Math.round((rev.correct / rev.asked) * 100) : 0;
       const qbStats = (s.players.pass && s.players.pass[match.qb.name]) || { td: 0, int: s.user.ints || 0 };
       document.getElementById('postgame-boxscore').innerHTML = `
@@ -7827,7 +8181,8 @@ function ensureCareerSeasonIntegrity() {
         <div>PASSING: ${s.user.passComp}/${s.user.passAtt}, ${s.user.passYds} YDS, ${qbStats.td || 0} TD, ${qbStats.int ?? (s.user.ints || 0)} INT</div>
         <div>RUSHING: ${s.user.rushAtt} ATT, ${s.user.rushYds} YDS</div>
         <div>DEFENSE: ${s.user.sacks} SACKS, ${s.cpu.ints} INTS</div>
-        <div class="text-emerald-300">ALGEBRA REVIEW: ${rev.correct}/${rev.asked} (${revPct}%) &bull; BEST STREAK: ${rev.bestStreak || 0}</div>
+        <div class="text-emerald-300">THIS GAME ALGEBRA: ✓ ${rev.correct} CORRECT &bull; ✗ ${revWrong} INCORRECT (${revPct}%) &bull; BEST STREAK: ${rev.bestStreak || 0}</div>
+        <div class="text-sky-300">LIFETIME ALGEBRA: ${formatLifetimeSummaryHtml(true)}</div>
       `;
 
       const rewardsEl = document.getElementById('postgame-rewards');
@@ -9359,8 +9714,9 @@ function ensureCareerSeasonIntegrity() {
     window.addEventListener('keydown', (e) => {
       keys[e.code] = true;
 
-      // Algebra Question / Topic Picker / Teacher Sync / Password modal keyboard controls
+      // Algebra Question / Topic Picker / Lifetime Stats / Teacher Sync / Password modal keyboard controls
       const passwordOpen = !document.getElementById('overlay-review-password')?.classList.contains('hidden');
+      const lifetimeStatsOpen = !document.getElementById('overlay-lifetime-stats')?.classList.contains('hidden');
       const teacherOpen = !document.getElementById('overlay-teacher-sync')?.classList.contains('hidden');
       const pickerOpen = !document.getElementById('overlay-topic-picker')?.classList.contains('hidden');
       const questionOpen = !document.getElementById('overlay-algebra-question')?.classList.contains('hidden');
@@ -9372,9 +9728,10 @@ function ensureCareerSeasonIntegrity() {
         return;
       }
 
-      if (teacherOpen || pickerOpen) {
+      if (lifetimeStatsOpen || teacherOpen || pickerOpen) {
         if (e.code === 'Escape') {
-          if (pickerOpen) closeTopicPickerModal();
+          if (lifetimeStatsOpen) closeLifetimeStatsModal();
+          else if (pickerOpen) closeTopicPickerModal();
           else if (teacherOpen) window.__algebraReviewBridge?.closeTeacherSync?.();
         }
         return;
@@ -10055,6 +10412,22 @@ function ensureCareerSeasonIntegrity() {
       sfx.playClick();
       requestToggleAlgebraReview();
     });
+    document.getElementById('btn-title-lifetime-stats')?.addEventListener('click', () => {
+      sfx.playClick();
+      openLifetimeStatsModal();
+    });
+    document.getElementById('btn-title-lifetime-reset')?.addEventListener('click', () => {
+      sfx.playClick();
+      requestResetLifetimeReviewStats();
+    });
+    document.getElementById('btn-close-lifetime-stats')?.addEventListener('click', () => {
+      sfx.playClick();
+      closeLifetimeStatsModal();
+    });
+    document.getElementById('btn-lifetime-reset')?.addEventListener('click', () => {
+      sfx.playClick();
+      requestResetLifetimeReviewStats();
+    });
     document.getElementById('btn-cancel-review-password')?.addEventListener('click', () => {
       sfx.playClick();
       closeReviewPasswordModal();
@@ -10066,11 +10439,11 @@ function ensureCareerSeasonIntegrity() {
       const entered = (inp?.value || '').trim();
       if (entered === REVIEW_TOGGLE_PASSWORD) {
         sfx.playCatch();
-        const cb = pendingReviewToggleCallback;
-        setAlgebraReviewEnabled(!algebraReviewEnabled);
+        const action = pendingPasswordAction;
         closeReviewPasswordModal();
-        showToast(`ALGEBRA REVIEW MODE: ${algebraReviewEnabled ? 'ON' : 'OFF'}`);
-        if (cb) cb();
+        if (action && typeof action.onUnlock === 'function') {
+          action.onUnlock();
+        }
       } else {
         sfx.playTurnover();
         if (errEl) errEl.classList.remove('hidden');
@@ -10109,9 +10482,11 @@ function ensureCareerSeasonIntegrity() {
     window.addEventListener('load', () => {
       resizeCanvas();
       updateTopicLabelsUI();
+      updateLifetimeStatsUI();
       if (window.__algebraReviewBridge && typeof window.__algebraReviewBridge.subscribe === 'function') {
         window.__algebraReviewBridge.subscribe(() => {
           updateTopicLabelsUI();
+          updateLifetimeStatsUI();
         });
       }
       requestAnimationFrame(gameLoop);
