@@ -1134,13 +1134,13 @@
       </div>
 
       <!-- Live In-Game Box Score Modal -->
-      <div id="overlay-boxscore" class="hidden absolute inset-0 bg-black/85 flex items-center justify-center p-4 sm:p-6 z-40">
-        <div class="pixel-box-gold max-w-2xl w-full p-5 bg-slate-900 text-left">
-          <div class="flex items-center justify-between border-b-2 border-slate-700 pb-3 mb-4">
+      <div id="overlay-boxscore" class="hidden absolute inset-0 bg-black/85 flex items-center justify-center p-3 sm:p-6 z-40">
+        <div class="pixel-box-gold max-w-4xl w-full min-w-0 p-4 sm:p-5 bg-slate-900 text-left flex flex-col max-h-[88dvh]">
+          <div class="flex items-center justify-between gap-2 border-b-2 border-slate-700 pb-3 mb-3 shrink-0">
             <span class="text-yellow-400 text-sm sm:text-base">LIVE GAME BOX SCORE</span>
-            <button id="btn-close-boxscore" class="pixel-btn btn-red px-3 py-1.5 text-xs">CLOSE</button>
+            <button id="btn-close-boxscore" class="pixel-btn btn-red px-3 py-1.5 text-xs shrink-0">CLOSE</button>
           </div>
-          <div id="boxscore-body" class="text-xs sm:text-sm text-slate-200 space-y-3 max-h-[70vh] overflow-y-auto"></div>
+          <div id="boxscore-body" class="text-xs sm:text-sm text-slate-200 space-y-3 flex-1 min-h-0 overflow-y-auto pr-1" style="-webkit-overflow-scrolling:touch; touch-action:pan-y;"></div>
         </div>
       </div>
 
@@ -6016,20 +6016,20 @@ function ensureCareerSeasonIntegrity() {
         const entries = Object.entries(mapObj || {});
         if (!entries.length) {
           return `
-            <div class="bg-slate-950 p-3 sm:p-4 border-2 border-slate-800">
-              <div class="text-sm sm:text-base text-yellow-400 mb-1.5">${title}</div>
-              <div class="text-slate-400 text-xs sm:text-sm">${emptyLabel}</div>
+            <div class="bg-slate-950 p-3 sm:p-4 border-2 border-slate-800 min-w-0">
+              <div class="text-sm sm:text-base text-yellow-400 mb-1.5">${escapeHtmlGame(title)}</div>
+              <div class="text-slate-400 text-xs sm:text-sm">${escapeHtmlGame(emptyLabel)}</div>
             </div>
           `;
         }
         return `
-          <div class="bg-slate-950 p-3 sm:p-4 border-2 border-slate-800">
-            <div class="text-sm sm:text-base text-yellow-400 mb-2">${title}</div>
-            <div class="space-y-1.5 text-xs sm:text-base">
+          <div class="bg-slate-950 p-3 sm:p-4 border-2 border-slate-800 min-w-0">
+            <div class="text-sm sm:text-base text-yellow-400 mb-2">${escapeHtmlGame(title)}</div>
+            <div class="space-y-2 text-xs sm:text-sm">
               ${entries.map(([name, val]) => `
-                <div class="flex justify-between gap-3 border-b border-slate-800/80 pb-1 last:border-b-0">
-                  <span class="text-white truncate">${name}</span>
-                  <span class="text-emerald-300 shrink-0">${formatter(val)}</span>
+                <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 border-b border-slate-800/80 pb-1.5 last:border-b-0 min-w-0">
+                  <span class="text-white font-bold break-words min-w-0">${escapeHtmlGame(name)}</span>
+                  <span class="text-emerald-300 ml-auto text-right whitespace-nowrap">${escapeHtmlGame(formatter(val))}</span>
                 </div>
               `).join('')}
             </div>
@@ -6038,7 +6038,7 @@ function ensureCareerSeasonIntegrity() {
       };
 
       body.innerHTML = `
-        <div class="bg-slate-950 p-4 border-2 border-slate-700">
+        <div class="bg-slate-950 p-3.5 sm:p-4 border-2 border-slate-700 min-w-0">
           <div class="grid grid-cols-6 text-center text-yellow-300 border-b-2 border-slate-800 pb-2 mb-2 text-xs sm:text-base">
             <div class="text-left">TEAM</div><div>Q1</div><div>Q2</div><div>Q3</div><div>Q4</div><div>TOT</div>
           </div>
@@ -6054,17 +6054,17 @@ function ensureCareerSeasonIntegrity() {
           </div>
         </div>
 
-        <div class="bg-slate-950 p-4 border-2 border-slate-800 space-y-2 text-xs sm:text-base">
+        <div class="bg-slate-950 p-3.5 sm:p-4 border-2 border-slate-800 space-y-2 text-xs sm:text-sm min-w-0">
           <div class="text-yellow-400 text-sm sm:text-base border-b border-slate-800 pb-1.5 mb-2">TEAM COMPARISON (${uName} VS ${cName})</div>
-          <div class="flex justify-between"><span>TOTAL YARDS</span><span class="text-emerald-300">${uName}: ${uTotalYds} &bull; ${cName}: ${cTotalYds}</span></div>
-          <div class="flex justify-between"><span>PASSING</span><span class="text-sky-300">${uName}: ${uComp}/${uAtt}, ${uPassYds} YDS &bull; ${cName}: ${cComp}/${cAtt}, ${cPassYds} YDS</span></div>
-          <div class="flex justify-between"><span>RUSHING</span><span class="text-amber-300">${uName}: ${uRushAtt} ATT, ${uRushYds} YDS &bull; ${cName}: ${cRushAtt} ATT, ${cRushYds} YDS</span></div>
-          <div class="flex justify-between"><span>TOUCHDOWNS</span><span class="text-yellow-300">${uName}: ${uTds} &bull; ${cName}: ${cTds}</span></div>
-          <div class="flex justify-between"><span>SACKS / TURNOVERS</span><span class="text-rose-300">${uName}: ${uSacks} SCK, ${uTurnovers} TO &bull; ${cName}: ${cSacks} SCK, ${cTurnovers} TO</span></div>
-          <div class="flex justify-between"><span>ALGEBRA REVIEW</span><span class="text-sky-300">${s.review ? `${s.review.correct}/${s.review.asked} CORRECT (${s.review.asked ? Math.round((s.review.correct / s.review.asked) * 100) : 0}%) • STREAK: ${s.review.bestStreak}` : '0/0'}</span></div>
+          <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"><span class="shrink-0">TOTAL YARDS</span><span class="text-emerald-300 ml-auto text-right">${uName}: ${uTotalYds} &bull; ${cName}: ${cTotalYds}</span></div>
+          <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"><span class="shrink-0">PASSING</span><span class="text-sky-300 ml-auto text-right">${uName}: ${uComp}/${uAtt}, ${uPassYds} YDS &bull; ${cName}: ${cComp}/${cAtt}, ${cPassYds} YDS</span></div>
+          <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"><span class="shrink-0">RUSHING</span><span class="text-amber-300 ml-auto text-right">${uName}: ${uRushAtt} ATT, ${uRushYds} YDS &bull; ${cName}: ${cRushAtt} ATT, ${cRushYds} YDS</span></div>
+          <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"><span class="shrink-0">TOUCHDOWNS</span><span class="text-yellow-300 ml-auto text-right">${uName}: ${uTds} &bull; ${cName}: ${cTds}</span></div>
+          <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"><span class="shrink-0">SACKS / TURNOVERS</span><span class="text-rose-300 ml-auto text-right">${uName}: ${uSacks} SCK, ${uTurnovers} TO &bull; ${cName}: ${cSacks} SCK, ${cTurnovers} TO</span></div>
+          <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"><span class="shrink-0">ALGEBRA REVIEW</span><span class="text-sky-300 ml-auto text-right">${s.review ? `${s.review.correct}/${s.review.asked} CORRECT (${s.review.asked ? Math.round((s.review.correct / s.review.asked) * 100) : 0}%) • STREAK: ${s.review.bestStreak}` : '0/0'}</span></div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 min-w-0">
           ${renderPlayerList(`${uName} PASSING`, s.players.pass, p => `${p.comp}/${p.att}, ${p.yds} YDS, ${p.td} TD, ${p.int} INT`)}
           ${renderPlayerList(`${uName} RUSHING`, s.players.rush, p => `${p.att} ATT, ${p.yds} YDS, ${p.td} TD`)}
           ${renderPlayerList(`${uName} RECEIVING`, s.players.rec, p => `${p.catches} REC, ${p.yds} YDS, ${p.td} TD`)}
